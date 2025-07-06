@@ -1,0 +1,5 @@
+<mat-grid-list cols="4">
+  @for (app of apps(); track app.name) {
+    <mat-grid-tile><app-app-panel [appInfo]="app"/></mat-grid-tile>
+  }
+</mat-grid-list>
