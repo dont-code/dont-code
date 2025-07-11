@@ -1,3 +1,5 @@
 export type AppInfo = {
-  name:string
+  name:string,
+  description?: string,
+  imgUrl?: string
 }

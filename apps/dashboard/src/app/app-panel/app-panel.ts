@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, Component, input} from '@angular/core';
 import {MatCard, MatCardHeader, MatCardImage, MatCardSubtitle, MatCardTitle} from '@angular/material/card';
 import {AppInfo} from '../model/app-info';
+import {RepositoryConfig} from '../model/repository-config';
 
 @Component({
   selector: 'app-app-panel',
@@ -18,8 +19,13 @@ import {AppInfo} from '../model/app-info';
 export class AppPanel {
 
   appInfo = input.required<AppInfo>();
+  repository= input.required<RepositoryConfig>();
 
-  imageUrl() {
-    return "assets/app-default-img.jpg";
+  imageUrl(app:AppInfo) {
+    return app.imgUrl?? "assets/app-default-img.jpg";
+  }
+
+  calculateHostUrl(app: AppInfo):string {
+    return this.repository().applicationHostUrl+'?project='+encodeURIComponent(app.name);
   }
 }

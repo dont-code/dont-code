@@ -12,7 +12,7 @@ styles-Z5UYKNDX.css  | styles           |   6.93 kB |                 1.11 kB
 Server bundles      
 Initial chunk files  | Names            |  Raw size
 server.mjs           | server           | 810.66 kB |                        
-main.server.mjs      | main.server      | 705.45 kB |                        
+main.server.mjs      | main.server      | 705.49 kB |                        
 polyfills.server.mjs | polyfills.server | 234.29 kB |                        
 chunk-L2MVFUKD.mjs   | -                |   1.32 kB |                        
 chunk-T55IDOPT.mjs   | -                | 976 bytes |                        
@@ -22,7 +22,7 @@ chunk-YFO53VMD.mjs   | xhr2             |  12.15 kB |
 chunk-MR6QNSMA.mjs   | xhr2             |  12.08 kB |                        
 
 Prerendered 1 static route.
-Application bundle generation complete. [46.253 seconds]
+Application bundle generation complete. [11.137 seconds]
 
 Output location: /home/gc-garunda/devs/dont-code/github/dont-code/apps/dashboard/dist/dashboard
 

@@ -1,7 +1,8 @@
+@let app = appInfo();
 <mat-card appearance="raised">
   <mat-card-header>
-    <mat-card-title>{{appInfo().name}}</mat-card-title>
-    <mat-card-subtitle>Sub Title</mat-card-subtitle>
+    <mat-card-title>{{app.name}}</mat-card-title>
+    <mat-card-subtitle>{{app.description}}</mat-card-subtitle>
   </mat-card-header>
-  <img mat-card-image [src]="imageUrl()" />
+  <a [href]="calculateHostUrl(app)"> <img mat-card-image [src]="imageUrl(app)" /></a>
 </mat-card>

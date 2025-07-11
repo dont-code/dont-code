@@ -12,7 +12,7 @@
 {"kind":"O","text":"Server bundles      \n"}
 {"kind":"O","text":"Initial chunk files  | Names            |  Raw size\n"}
 {"kind":"O","text":"server.mjs           | server           | 810.66 kB |                        \n"}
-{"kind":"O","text":"main.server.mjs      | main.server      | 705.45 kB |                        \n"}
+{"kind":"O","text":"main.server.mjs      | main.server      | 705.49 kB |                        \n"}
 {"kind":"O","text":"polyfills.server.mjs | polyfills.server | 234.29 kB |                        \n"}
 {"kind":"O","text":"chunk-L2MVFUKD.mjs   | -                |   1.32 kB |                        \n"}
 {"kind":"O","text":"chunk-T55IDOPT.mjs   | -                | 976 bytes |                        \n"}
@@ -22,7 +22,7 @@
 {"kind":"O","text":"chunk-MR6QNSMA.mjs   | xhr2             |  12.08 kB |                        \n"}
 {"kind":"O","text":"\n"}
 {"kind":"O","text":"Prerendered 1 static route.\n"}
-{"kind":"O","text":"Application bundle generation complete. [46.253 seconds]\n"}
+{"kind":"O","text":"Application bundle generation complete. [11.137 seconds]\n"}
 {"kind":"O","text":"\n"}
 {"kind":"O","text":"Output location: /home/gc-garunda/devs/dont-code/github/dont-code/apps/dashboard/dist/dashboard\n"}
 {"kind":"O","text":"\n"}
