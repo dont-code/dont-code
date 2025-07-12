@@ -29,3 +29,5 @@ yarn-error.log*
 
 # rush
 /common/temp
+/apps/dashboard/.rush/
+/apps/dashboard/rush-logs/
