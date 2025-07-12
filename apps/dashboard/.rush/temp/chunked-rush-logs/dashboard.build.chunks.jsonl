@@ -3,16 +3,16 @@
 {"kind":"O","text":"✔ Building...\n"}
 {"kind":"O","text":"Browser bundles     \n"}
 {"kind":"O","text":"Initial chunk files  | Names            |  Raw size | Estimated transfer size\n"}
-{"kind":"O","text":"main-BEIUNNVC.js     | main             | 261.86 kB |                71.22 kB\n"}
-{"kind":"O","text":"styles-Z5UYKNDX.css  | styles           |   6.93 kB |                 1.11 kB\n"}
+{"kind":"O","text":"main-DBRNLCE4.js     | main             | 268.48 kB |                73.65 kB\n"}
+{"kind":"O","text":"styles-FTGTFVTC.css  | styles           |  11.85 kB |                 2.61 kB\n"}
 {"kind":"O","text":"\n"}
-{"kind":"O","text":"                     | Initial total    | 268.79 kB |                72.33 kB\n"}
+{"kind":"O","text":"                     | Initial total    | 280.33 kB |                76.26 kB\n"}
 {"kind":"O","text":"\n"}
 {"kind":"O","text":"\n"}
 {"kind":"O","text":"Server bundles      \n"}
 {"kind":"O","text":"Initial chunk files  | Names            |  Raw size\n"}
 {"kind":"O","text":"server.mjs           | server           | 810.66 kB |                        \n"}
-{"kind":"O","text":"main.server.mjs      | main.server      | 705.49 kB |                        \n"}
+{"kind":"O","text":"main.server.mjs      | main.server      | 712.67 kB |                        \n"}
 {"kind":"O","text":"polyfills.server.mjs | polyfills.server | 234.29 kB |                        \n"}
 {"kind":"O","text":"chunk-L2MVFUKD.mjs   | -                |   1.32 kB |                        \n"}
 {"kind":"O","text":"chunk-T55IDOPT.mjs   | -                | 976 bytes |                        \n"}
@@ -21,8 +21,8 @@
 {"kind":"O","text":"chunk-YFO53VMD.mjs   | xhr2             |  12.15 kB |                        \n"}
 {"kind":"O","text":"chunk-MR6QNSMA.mjs   | xhr2             |  12.08 kB |                        \n"}
 {"kind":"O","text":"\n"}
-{"kind":"O","text":"Prerendered 1 static route.\n"}
-{"kind":"O","text":"Application bundle generation complete. [11.137 seconds]\n"}
+{"kind":"O","text":"Prerendered 3 static routes.\n"}
+{"kind":"O","text":"Application bundle generation complete. [11.833 seconds]\n"}
 {"kind":"O","text":"\n"}
 {"kind":"O","text":"Output location: /home/gc-garunda/devs/dont-code/github/dont-code/apps/dashboard/dist/dashboard\n"}
 {"kind":"O","text":"\n"}

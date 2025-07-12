@@ -3,16 +3,16 @@ Invoking: ng build
 ✔ Building...
 Browser bundles     
 Initial chunk files  | Names            |  Raw size | Estimated transfer size
-main-BEIUNNVC.js     | main             | 261.86 kB |                71.22 kB
-styles-Z5UYKNDX.css  | styles           |   6.93 kB |                 1.11 kB
+main-DBRNLCE4.js     | main             | 268.48 kB |                73.65 kB
+styles-FTGTFVTC.css  | styles           |  11.85 kB |                 2.61 kB
 
-                     | Initial total    | 268.79 kB |                72.33 kB
+                     | Initial total    | 280.33 kB |                76.26 kB
 
 
 Server bundles      
 Initial chunk files  | Names            |  Raw size
 server.mjs           | server           | 810.66 kB |                        
-main.server.mjs      | main.server      | 705.49 kB |                        
+main.server.mjs      | main.server      | 712.67 kB |                        
 polyfills.server.mjs | polyfills.server | 234.29 kB |                        
 chunk-L2MVFUKD.mjs   | -                |   1.32 kB |                        
 chunk-T55IDOPT.mjs   | -                | 976 bytes |                        
@@ -21,8 +21,8 @@ Lazy chunk files     | Names            |  Raw size
 chunk-YFO53VMD.mjs   | xhr2             |  12.15 kB |                        
 chunk-MR6QNSMA.mjs   | xhr2             |  12.08 kB |                        
 
-Prerendered 1 static route.
-Application bundle generation complete. [11.137 seconds]
+Prerendered 3 static routes.
+Application bundle generation complete. [11.833 seconds]
 
 Output location: /home/gc-garunda/devs/dont-code/github/dont-code/apps/dashboard/dist/dashboard
 

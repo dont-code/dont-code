@@ -6,7 +6,17 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Prerender
   }
   ,{
+    path:'repo/:repoName',
+    renderMode: RenderMode.Prerender,
+    async getPrerenderParams () {
+      return [
+        { repoName:'collinfr'},
+        { repoName:'default'}
+      ];
+    }
+  }
+  ,{
     path: '**',
-    renderMode: RenderMode.Prerender
+    renderMode: RenderMode.Server
   }
 ];

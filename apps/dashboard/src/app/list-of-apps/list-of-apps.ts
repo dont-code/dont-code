@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, input} from '@angular/core';
 import {AppInfo} from '../model/app-info';
 import {AppPanel} from '../app-panel/app-panel';
 import {httpResource} from '@angular/common/http';
@@ -15,7 +15,13 @@ import {RepositoryConfig} from '../model/repository-config';
 })
 export class ListOfApps {
 
-  config = httpResource<RepositoryConfig>(() => 'assets/config/default.json');
+  repoName = input<string>();
+
+  config = httpResource<RepositoryConfig>(() => {
+    if (this.repoName()) {
+      return 'assets/config/'+this.repoName()+'.json';
+    } else return 'assets/config/default.json'
+  });
 
   appInDb = httpResource<any[]>(() => {
       if (this.config.hasValue()) {
@@ -31,7 +37,16 @@ export class ListOfApps {
       return rawApps?.map( (val) => {
         return {
           name:val.name,
-          description:val.description
+          description:val.description,
+          imgUrl:val.imgUrl
+        }
+      }).sort ( (a,b) => {
+        if ((a.imgUrl!=null) && (b.imgUrl==null)) {
+          return -1;
+        } else if ((a.imgUrl==null) && (b.imgUrl!=null)) {
+          return 1;
+        } else {
+          return 0;
         }
       })
     }

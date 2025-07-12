@@ -3,6 +3,9 @@ import {ListOfApps} from './list-of-apps/list-of-apps';
 
 export const routes: Routes = [
   {
-    path:'', component:ListOfApps
+    path:'', component:ListOfApps,
+  },{
+    path:'repo/:repoName',
+    component:ListOfApps
   }
 ];
