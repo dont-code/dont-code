@@ -1,0 +1,38 @@
+name: Deploy Apps Dashboard
+on:
+  workflow_dispatch:
+
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'apps/dashboard/**'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Git config user
+        uses: snow-actions/git-config-user@v1.0.0
+        with:
+          name: Dont-code
+          email: developer@dont-code.net
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Rush Install
+        run: node common/scripts/install-run-rush.js install
+      - name: Rush rebuild
+        run: node common/scripts/install-run-rush.js rebuild
+      - name: Deploy to test.dont-code.net apps with ${{env.stage}}
+        if: ${{ success() && (matrix.browser == 'chromium') && ( inputs.deploy == true ) }}
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.6
+        with:
+          username: ${{secrets.DONTCODE_WEBSITE_USER}}
+          password: ${{secrets.DONTCODE_WEBSITE_PASSWORD}}
+          local_path: './apps/dashboard/dist/dashboard/browser/*'
+          remote_path: '/www/apps'
+          server: 'test.dont-code.net'
+          sftp_only: 'true'
+          delete_remote_files: 'true'

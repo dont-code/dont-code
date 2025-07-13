@@ -26,6 +26,6 @@ export class AppPanel {
   }
 
   calculateHostUrl(app: AppInfo):string {
-    return this.repository().applicationHostUrl+'?project='+encodeURIComponent(app.name);
+    return this.repository().applicationHostUrl+'project='+encodeURIComponent(app.name);
   }
 }
