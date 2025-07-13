@@ -26,7 +26,6 @@ jobs:
       - name: Rush rebuild
         run: node common/scripts/install-run-rush.js rebuild
       - name: Deploy to test.dont-code.net apps with ${{env.stage}}
-        if: ${{ success() && (matrix.browser == 'chromium') && ( inputs.deploy == true ) }}
         uses: wlixcc/SFTP-Deploy-Action@v1.2.6
         with:
           username: ${{secrets.DONTCODE_WEBSITE_USER}}
