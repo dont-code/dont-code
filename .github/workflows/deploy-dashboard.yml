@@ -25,7 +25,7 @@ jobs:
         run: node common/scripts/install-run-rush.js install
       - name: Rush rebuild
         run: node common/scripts/install-run-rush.js rebuild
-      - name: Deploy to test.dont-code.net apps with ${{env.stage}}
+      - name: Deploy Dashboard to dont-code.net
         uses: wlixcc/SFTP-Deploy-Action@v1.2.6
         with:
           username: ${{secrets.DONTCODE_WEBSITE_USER}}
@@ -34,4 +34,3 @@ jobs:
           remote_path: '/www/apps'
           server: 'test.dont-code.net'
           sftp_only: 'true'
-          delete_remote_files: 'true'
