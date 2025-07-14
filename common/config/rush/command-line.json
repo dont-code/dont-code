@@ -11,6 +11,16 @@
    * "rush my-global-command --help".
    */
   "commands": [
+    {
+      "commandKind": "bulk",
+      "name": "build-deploy-dashboard",
+      "shellCommand": "npm run build-deploy",
+      "summary": "Deploy dashboard",
+      "description": "Deploy dashboard app",
+      "enableParallelism": true,
+      "allowWarningsInSuccessfulBuild": true
+    }
+
     // {
     //   /**
     //    * (Required) Determines the type of custom command.

@@ -1,7 +1,8 @@
-import {ChangeDetectionStrategy, Component, input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, input} from '@angular/core';
 import {MatCard, MatCardHeader, MatCardImage, MatCardSubtitle, MatCardTitle} from '@angular/material/card';
 import {AppInfo} from '../model/app-info';
 import {RepositoryConfig} from '../model/repository-config';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-app-panel',
@@ -21,8 +22,13 @@ export class AppPanel {
   appInfo = input.required<AppInfo>();
   repository= input.required<RepositoryConfig>();
 
+  router = inject(Router);
+
   imageUrl(app:AppInfo) {
-    return app.imgUrl?? "/assets/app-default-img.jpg";
+    if (app.imgUrl != null)
+      return app.imgUrl;
+    const url=this.router.createUrlTree(['/','assets','app-default-img.jpg']);
+     return url.toString();
   }
 
   calculateHostUrl(app: AppInfo):string {
