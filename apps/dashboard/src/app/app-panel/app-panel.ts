@@ -22,7 +22,7 @@ export class AppPanel {
   repository= input.required<RepositoryConfig>();
 
   imageUrl(app:AppInfo) {
-    return app.imgUrl?? "assets/app-default-img.jpg";
+    return app.imgUrl?? "/assets/app-default-img.jpg";
   }
 
   calculateHostUrl(app: AppInfo):string {
