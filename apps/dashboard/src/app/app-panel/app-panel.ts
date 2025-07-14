@@ -27,7 +27,7 @@ export class AppPanel {
   imageUrl(app:AppInfo) {
     if (app.imgUrl != null)
       return app.imgUrl;
-    const url=this.router.createUrlTree(['/','assets','app-default-img.jpg']);
+    const url=this.router.createUrlTree(['assets','app-default-img.jpg'], {relativeTo:null});
      return url.toString();
   }
 
