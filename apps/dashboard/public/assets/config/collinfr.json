@@ -3,6 +3,6 @@
   "name": "Stable Collinfr Repository",
   "description": "Repository provided by Dont-code using stable versions of plugins to connect to Collinfr services",
   "projectApiUrl": "https://collinfr.net/dont-code/project",
-  "applicationHostUrl": "https://test.dont-code.net/apps/latest/xt-host/?repository=collinfr&"
+  "applicationHostUrl": "https://test.dont-code.net/apps/latest/host/?repository=collinfr&"
 
  }
