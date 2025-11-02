@@ -33,5 +33,5 @@ jobs:
           local_path: './apps/dashboard/dist/dashboard/browser/*'
           remote_path: '/www/apps'
           server: 'test.${{secrets.DONTCODE_WEBSITE_HOST}}'
-          port: 'test.${{secrets.DONTCODE_WEBSITE_SSH_PORT}}'
+          port: ${{secrets.DONTCODE_WEBSITE_SSH_PORT}}
           sftp_only: 'true'
