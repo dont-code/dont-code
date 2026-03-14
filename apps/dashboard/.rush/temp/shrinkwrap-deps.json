@@ -1,5 +1,5 @@
 {
-  "../../apps/dashboard": "../../apps/dashboard:98m3GkcWEmnm6cZkXQxacNxjjAr+0Rm2w07LV6lTw6o=:",
+  "../../apps/dashboard": "../../apps/dashboard:o4eHVk5lqlTqG0A/VBnCQeZ2CtFwLKve5H18i4xMKb8=:",
   "@algolia/abtesting@1.14.1": "@algolia/abtesting@1.14.1:Xai/LRjXpKZjQ1KRtARC4GkFzu+32AKNLbOZaD2X4p4=:",
   "@algolia/client-abtesting@5.48.1": "@algolia/client-abtesting@5.48.1:dLFDrhCuELT1LZ1YzM4StJKtSBLKx8nJSAWJ/bfJQJs=:",
   "@algolia/client-analytics@5.48.1": "@algolia/client-analytics@5.48.1:UjQ0dBBeVOfjfpH4h2cIKzoraxwwO65O2+ARpQRXaxU=:",
@@ -362,6 +362,7 @@
   "esbuild@0.27.3": "esbuild@0.27.3:79PZQgQbJ22guklyh0gdSITLlAiHf8JP6S2BcHPXUjw=:",
   "escalade@3.2.0": "escalade@3.2.0:HTU22TxQG7qGIMJjG5UpaJ1i5ZU7xJeFpd1jzriI47o=:",
   "escape-html@1.0.3": "escape-html@1.0.3:mX8UxwvTySBJ9C1G2rgHwf/MNFjShKHWlSmZv9o9aZ4=:",
+  "eta@4.5.1": "eta@4.5.1:bHkIq7zex/fv+Jr5Wo0KHRsMxXSgY/ycjULIx9GNiT4=:",
   "etag@1.8.1": "etag@1.8.1:KdorI6O5577SWH0yqlkpQse5LSIV1QVfo1L01A3fisg=:",
   "eventemitter3@4.0.7": "eventemitter3@4.0.7:4XlfvOD6OBsI7SOC32hieoFzeq9p3b2ueoT+rX2RHEE=:",
   "eventemitter3@5.0.1": "eventemitter3@5.0.1:Y2ar0nEqhkESkqJ3m0UQiiLU1PV4V6e4RRcsRrNO3pA=:",
@@ -679,6 +680,7 @@
   "wrappy@1.0.2": "wrappy@1.0.2:OY+hp51e8aHh3ZgR7YmXTvpEjq9C6BKblS8g3yjn4Ro=:",
   "ws@8.17.1": "ws@8.17.1:Yr8fwfCZ2ptHPreLlPnB21D0MQQLbKYhe4wTY3OkUZ0=:",
   "xhr2@0.2.1": "xhr2@0.2.1:/12EEVz3jHIb+DSnPod5pePKsuln+qoy/KYI9VN7YJ0=:",
+  "xt-type@0.10.4": "xt-type@0.10.4:1ytVndO25jyEnW5hXjNT28HWhp9A1Py5tl8UBdJ+L94=:",
   "y18n@5.0.8": "y18n@5.0.8:R0l/R1yoXv991KJ/fxbofUsm0+YCNrXp/QdCqG0Bzlc=:",
   "yallist@3.1.1": "yallist@3.1.1:fq8S7e6aWz0QoRbz35txu94iNBqcAqvuEFwkL8BUW/A=:",
   "yallist@4.0.0": "yallist@4.0.0:g1l0JjkndK5+D0dThS2GGmGJkQ/MTilVWHNa5Je4fy4=:",

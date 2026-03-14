@@ -60,6 +60,9 @@ importers:
       tslib:
         specifier: ^2.3.0
         version: 2.8.1
+      xt-type:
+        specifier: ^0.10.4
+        version: 0.10.4
     devDependencies:
       '@angular/build':
         specifier: ^21.2.0
@@ -1942,6 +1945,10 @@ packages:
   escape-html@1.0.3:
     resolution: {integrity: sha512-NiSupZ4OeuGwr68lGIeym/ksIZMJodUGOSCZ/FSnTxcrekbvqrgdUxlJOMpijaKZVjAJrWrGs/6Jy8OMuyj9ow==}
 
+  eta@4.5.1:
+    resolution: {integrity: sha512-EaNCGm+8XEIU7YNcc+THptWAO5NfKBHHARxt+wxZljj9bTr/+arRoOm9/MpGt4n6xn9fLnPFRSoLD0WFYGFUxQ==}
+    engines: {node: '>=20'}
+
   etag@1.8.1:
     resolution: {integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==}
     engines: {node: '>= 0.6'}
@@ -3259,6 +3266,10 @@ packages:
   xhr2@0.2.1:
     resolution: {integrity: sha512-sID0rrVCqkVNUn8t6xuv9+6FViXjUVXq8H5rWOH2rz9fDNQEd4g0EA2XlcEdJXRz5BMEn4O1pJFdT+z4YHhoWw==}
     engines: {node: '>= 6'}
+
+  xt-type@0.10.4:
+    resolution: {integrity: sha512-3CdA/eRZGqib+KDqMaQ75NWfIE/T5GiPeX5tetgCme9H6rHERfvJvARvDgZlaMSayrY4hcO/LVE+cYhb13Ty/w==}
+    engines: {node: '>=20'}
 
   y18n@5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
@@ -5074,6 +5085,8 @@ snapshots:
 
   escape-html@1.0.3: {}
 
+  eta@4.5.1: {}
+
   etag@1.8.1: {}
 
   eventemitter3@4.0.7: {}
@@ -6489,6 +6502,10 @@ snapshots:
   ws@8.17.1: {}
 
   xhr2@0.2.1: {}
+
+  xt-type@0.10.4:
+    dependencies:
+      eta: 4.5.1
 
   y18n@5.0.8: {}
 

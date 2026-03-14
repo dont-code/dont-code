@@ -1,0 +1,9 @@
+.dialog-form {
+  min-width: 18em;
+  max-width: 140em;
+  width: 100%;
+}
+
+.dialog-full-width {
+  width: 100%;
+}

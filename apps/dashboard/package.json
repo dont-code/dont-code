@@ -37,7 +37,8 @@
     "postcss": "^8.5.6",
     "rxjs": "~7.8.0",
     "tailwindcss": "^4.2.1",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "xt-type": "^0.10.4"
   },
   "devDependencies": {
     "@angular/build": "^21.2.0",

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import {ListOfApps} from './list-of-apps/list-of-apps';
+import {GenerateApp} from './generate-app/generate-app';
 
 export const routes: Routes = [
   {
@@ -7,5 +8,8 @@ export const routes: Routes = [
   },{
     path:'repo/:repoName',
     component:ListOfApps
+  },{
+    path:'generate/:repoName',
+    component: GenerateApp
   }
 ];
