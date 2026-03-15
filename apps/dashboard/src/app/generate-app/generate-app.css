@@ -398,6 +398,26 @@
     linear-gradient(180deg, rgba(239, 246, 255, 0.55), rgba(248, 250, 252, 0.9));
 }
 
+.preview-frame-shell {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.preview-iframe {
+  width: 100%;
+  min-height: 38rem;
+  border: 0;
+  border-radius: 1.2rem;
+  background: #ffffff;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.10);
+}
+
+.preview-iframe-mobile {
+  width: 23rem;
+  max-width: 100%;
+}
+
 .preview-surface-mobile .preview-app-window {
   width: 23rem;
 }
@@ -629,6 +649,7 @@
     align-items: flex-start;
   }
 
+  .preview-iframe-mobile,
   .preview-surface-mobile .preview-app-window {
     width: 100%;
   }

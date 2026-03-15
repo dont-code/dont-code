@@ -1,6 +1,7 @@
 import {Component, computed, effect, ElementRef, inject, input, OnInit, ViewChild} from '@angular/core';
-import {RepositoryConfig} from '../model/repository-config';
 import {HttpResourceRef} from '@angular/common/http';
+import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
+import {RepositoryConfig} from '../model/repository-config';
 import {ConfigService} from '../shared/config-service/config-service';
 import {MatFormField, MatInput, MatLabel, MatSuffix} from '@angular/material/input';
 import {DialogService} from '../shared/dialog-service/dialog-service';
@@ -34,6 +35,7 @@ export class GenerateApp implements OnInit {
   config = inject(ConfigService);
   dialog = inject(DialogService);
   generator = inject(GenerateAppService);
+  sanitizer = inject(DomSanitizer);
 
   protected currentQuestion: string = "I'd like to have an application for ...";
   protected isWaitingForAnswer = false;
@@ -48,6 +50,23 @@ export class GenerateApp implements OnInit {
       }
     }
     return null;
+  });
+
+  protected previewUrl = computed<SafeResourceUrl | null>(() => {
+    const repo = this.repository().value();
+    const app = this.latestGeneratedApp();
+    const applicationHostUrl = repo?.applicationHostUrl;
+
+    if (!applicationHostUrl || !app?.name) {
+      return null;
+    }
+
+    const baseUrl = applicationHostUrl.endsWith('/')
+      ? applicationHostUrl.slice(0, -1)
+      : applicationHostUrl;
+    const appSlug = this.slugify(app.name);
+
+    return this.sanitizer.bypassSecurityTrustResourceUrl(`${baseUrl}/${appSlug}`);
   });
 
   constructor() {
@@ -101,6 +120,16 @@ export class GenerateApp implements OnInit {
       top: element.scrollHeight,
       behavior: 'smooth'
     });
+  }
+
+  private slugify(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
   }
 
 }

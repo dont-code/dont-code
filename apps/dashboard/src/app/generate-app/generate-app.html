@@ -137,6 +137,7 @@
         </div>
 
         @let previewApp = latestGeneratedApp();
+        @let iframeUrl = previewUrl();
 
         @if (previewApp) {
           <div class="preview-body">
@@ -152,55 +153,70 @@
                 class="preview-surface"
                 [class.preview-surface-mobile]="previewMode === 'mobile'"
               >
-                <div class="preview-app-window">
-                  <div class="preview-app-topbar">
-                    <div class="preview-app-brand">{{previewApp.name}}</div>
-                    <div class="preview-app-pill">Generated</div>
+                @if (iframeUrl) {
+                  <div class="preview-frame-shell">
+                    <iframe
+                      class="preview-iframe"
+                      [class.preview-iframe-mobile]="previewMode === 'mobile'"
+                      [src]="iframeUrl"
+                      title="Generated application preview"
+                    ></iframe>
                   </div>
-
-                  <div class="preview-app-content">
-                    <div class="preview-hero-card">
-                      <div class="preview-hero-title">{{previewApp.name}}</div>
-                      <div class="preview-hero-description">
-                        {{previewApp.description || 'Generated application preview'}}
-                      </div>
-
-                      <div class="preview-badges">
-                        <span class="preview-badge">
-                          {{previewApp.content.creation.entities?.length || 0}} entities
-                        </span>
-                        <span class="preview-badge">
-                          {{previewApp.content.creation.sharing?.with || 'No sharing info'}}
-                        </span>
-                      </div>
+                } @else {
+                  <div class="preview-app-window">
+                    <div class="preview-app-topbar">
+                      <div class="preview-app-brand">{{previewApp.name}}</div>
+                      <div class="preview-app-pill">Generated</div>
                     </div>
 
-                    <div class="preview-entity-grid">
-                      @for (entity of previewApp.content.creation.entities ?? []; track entity.name) {
-                        <div class="preview-entity-card">
-                          <div class="preview-entity-title">{{entity.name}}</div>
-
-                          @if ((entity.fields?.length || 0) > 0) {
-                            <div class="preview-field-list">
-                              @for (field of entity.fields ?? []; track field.name) {
-                                <div class="preview-field-row">
-                                  <span class="preview-field-name">{{field.name}}</span>
-                                  <span class="preview-field-type">{{field.type}}</span>
-                                </div>
-                              }
-                            </div>
-                          } @else {
-                            <div class="preview-empty-fields">No fields defined yet</div>
-                          }
+                    <div class="preview-app-content">
+                      <div class="preview-hero-card">
+                        <div class="preview-hero-title">{{previewApp.name}}</div>
+                        <div class="preview-hero-description">
+                          {{previewApp.description || 'Generated application preview'}}
                         </div>
-                      }
+
+                        <div class="preview-badges">
+                          <span class="preview-badge">
+                            {{previewApp.content.creation.entities?.length || 0}} entities
+                          </span>
+                          <span class="preview-badge">
+                            {{previewApp.content.creation.sharing?.with || 'No sharing info'}}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div class="preview-entity-grid">
+                        @for (entity of previewApp.content.creation.entities ?? []; track entity.name) {
+                          <div class="preview-entity-card">
+                            <div class="preview-entity-title">{{entity.name}}</div>
+
+                            @if ((entity.fields?.length || 0) > 0) {
+                              <div class="preview-field-list">
+                                @for (field of entity.fields ?? []; track field.name) {
+                                  <div class="preview-field-row">
+                                    <span class="preview-field-name">{{field.name}}</span>
+                                    <span class="preview-field-type">{{field.type}}</span>
+                                  </div>
+                                }
+                              </div>
+                            } @else {
+                              <div class="preview-empty-fields">No fields defined yet</div>
+                            }
+                          </div>
+                        }
+                      </div>
                     </div>
                   </div>
-                </div>
+                }
               </div>
 
               <div class="runtime-placeholder-note">
-                This area is ready to host the real generated app runtime as soon as a preview URL is available.
+                @if (iframeUrl) {
+                  Runtime loaded from the application host.
+                } @else {
+                  No runtime URL available yet. Showing the generated structure preview instead.
+                }
               </div>
             </div>
           </div>
