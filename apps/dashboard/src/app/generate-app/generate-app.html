@@ -1,48 +1,63 @@
 @let repo=repository();
 @if (repo.hasValue()) {
-  <div class="gap-4 p-8">
-    <div class="text-center text-3xl text-shadow-md">
-      Dont-code Application Generator !
-    </div>
-      @let repoConfig = repo.value();
-    <div class="text-center text-2xl">
-      For {{repoConfig.name}}
-    </div>
-    <div class="text-center text-xl italic">
-      {{repoConfig.description}}
-    </div>
+  <div class="page-shell">
+    @let repoConfig = repo.value();
 
-  </div>
-  <div class="gap-4 p-8">
-    @for (item of dialog.dialogSession(); track item.id) {
-      @if (item.isQuestion) {
-        <mat-form-field class="dialog-old-question gap-4 p-8">
-          <textarea matInput disabled [value]="item.text"></textarea>
-        </mat-form-field>
-      } @else if (item.errorMessage!=null)
-      {
-        <mat-form-field class="dialog-old-response error  gap-4 p-8">
-          <mat-icon matPrefix>warning</mat-icon>
-          <textarea matInput disabled [value]="item.errorMessage"></textarea>
-        </mat-form-field>
-      } @else {
-        <mat-form-field class="dialog-old-response  gap-4 p-8">
-          <textarea matInput disabled [value]="item.text"></textarea>
-        </mat-form-field>
+    <header class="chat-header">
+      <div class="chat-title">Dont-code Application Generator</div>
+      <div class="chat-subtitle">For {{repoConfig.name}}</div>
+      <div class="chat-description">{{repoConfig.description}}</div>
+    </header>
+
+    <section class="chat-thread">
+      @for (item of dialog.dialogSession(); track item.id) {
+        @if (item.isQuestion) {
+          <div class="message-row message-row-left">
+            <div class="message-bubble message-user">
+              <div class="message-label">You</div>
+              <div class="message-text">{{item.text}}</div>
+            </div>
+          </div>
+        } @else if (item.errorMessage!=null) {
+          <div class="message-row message-row-right">
+            <div class="message-bubble message-error">
+              <div class="message-label message-label-error">
+                <mat-icon>warning</mat-icon>
+                <span>Error</span>
+              </div>
+              <div class="message-text">{{item.errorMessage}}</div>
+            </div>
+          </div>
+        } @else {
+          <div class="message-row message-row-right">
+            <div class="message-bubble message-assistant">
+              <div class="message-label">LLM</div>
+              <div class="message-text">{{item.text}}</div>
+            </div>
+          </div>
+        }
       }
-    }
-    <form class="dialog-form" (ngSubmit)="addQuestion()">
-      <mat-form-field class="dialog-full-width  gap-4 p-8" appearance="fill">
+    </section>
+
+    <form class="composer" (ngSubmit)="addQuestion()">
+      <mat-form-field class="dialog-full-width composer-field" appearance="outline">
         <mat-label>Describe the application you need</mat-label>
-        <textarea matInput type="text" name="question" [(ngModel)]="currentQuestion" rows="4"></textarea>
+        <textarea
+          matInput
+          type="text"
+          name="question"
+          [(ngModel)]="currentQuestion"
+          rows="4"
+        ></textarea>
         <button
           matIconButton
           matSuffix
           type="submit"
-        ><mat-icon>arrow_forward</mat-icon>
+          aria-label="Send message"
+        >
+          <mat-icon>arrow_forward</mat-icon>
         </button>
       </mat-form-field>
     </form>
-
   </div>
 }

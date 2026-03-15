@@ -46,8 +46,13 @@ export class GenerateApp implements OnInit {
   }
 
   addQuestion() {
-    this.dialog.addQuestion(this.currentQuestion);
-    this.generator.sendMessage(this.currentQuestion).catch((error) => {
+    const question = this.currentQuestion.trim();
+    if (!question) {
+      return;
+    }
+
+    this.dialog.addQuestion(question);
+    this.generator.sendMessage(question).catch((error) => {
       this.dialog.addError(error);
     });
     this.currentQuestion = '';
