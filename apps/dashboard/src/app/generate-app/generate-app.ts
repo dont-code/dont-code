@@ -1,4 +1,4 @@
-import {Component, effect, ElementRef, inject, input, OnInit, ViewChild} from '@angular/core';
+import {Component, computed, effect, ElementRef, inject, input, OnInit, ViewChild} from '@angular/core';
 import {RepositoryConfig} from '../model/repository-config';
 import {HttpResourceRef} from '@angular/common/http';
 import {ConfigService} from '../shared/config-service/config-service';
@@ -8,6 +8,7 @@ import {FormsModule} from '@angular/forms';
 import {MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 import {GenerateAppService} from '../shared/generate-app-service/generate-app-service';
+import {ApplicationModel} from '../model/application';
 
 @Component({
   selector: 'app-generate-app',
@@ -36,6 +37,18 @@ export class GenerateApp implements OnInit {
 
   protected currentQuestion: string = "I'd like to have an application for ...";
   protected isWaitingForAnswer = false;
+  protected previewMode: 'desktop' | 'mobile' = 'desktop';
+
+  protected latestGeneratedApp = computed<ApplicationModel | null>(() => {
+    const session = this.dialog.dialogSession();
+    for (let index = session.length - 1; index >= 0; index--) {
+      const item = session[index];
+      if (!item.isQuestion && item.model) {
+        return item.model;
+      }
+    }
+    return null;
+  });
 
   constructor() {
     effect(() => {
@@ -72,6 +85,10 @@ export class GenerateApp implements OnInit {
 
     this.currentQuestion = '';
     queueMicrotask(() => this.scrollToBottom());
+  }
+
+  setPreviewMode(mode: 'desktop' | 'mobile'): void {
+    this.previewMode = mode;
   }
 
   private scrollToBottom(): void {
