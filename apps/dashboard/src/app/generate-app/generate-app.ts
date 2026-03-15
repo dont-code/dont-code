@@ -1,4 +1,4 @@
-import {Component, inject, input, OnInit} from '@angular/core';
+import {Component, effect, ElementRef, inject, input, OnInit, ViewChild} from '@angular/core';
 import {RepositoryConfig} from '../model/repository-config';
 import {HttpResourceRef} from '@angular/common/http';
 import {ConfigService} from '../shared/config-service/config-service';
@@ -25,36 +25,65 @@ import {GenerateAppService} from '../shared/generate-app-service/generate-app-se
 })
 export class GenerateApp implements OnInit {
 
+  @ViewChild('chatThread')
+  private chatThread?: ElementRef<HTMLDivElement>;
+
   repoName = input<string>();
 
   config = inject(ConfigService);
   dialog = inject(DialogService);
   generator = inject(GenerateAppService);
 
-  protected currentQuestion: string="I'd like to have an application for ...";
+  protected currentQuestion: string = "I'd like to have an application for ...";
+  protected isWaitingForAnswer = false;
 
-  repository (): HttpResourceRef<RepositoryConfig | undefined> {
+  constructor() {
+    effect(() => {
+      this.dialog.dialogSession();
+      queueMicrotask(() => this.scrollToBottom());
+    });
+  }
+
+  repository(): HttpResourceRef<RepositoryConfig | undefined> {
     return this.config.repository;
   }
 
   ngOnInit(): void {
     this.config.updateRepoName(this.repoName());
-    this.generator.messageReceiver ((response)=> {
+    this.generator.messageReceiver((response) => {
+      this.isWaitingForAnswer = false;
       this.dialog.addAnswer(response);
     });
   }
 
   addQuestion() {
     const question = this.currentQuestion.trim();
-    if (!question) {
+    if (!question || this.isWaitingForAnswer) {
       return;
     }
 
     this.dialog.addQuestion(question);
+    this.isWaitingForAnswer = true;
+
     this.generator.sendMessage(question).catch((error) => {
+      this.isWaitingForAnswer = false;
       this.dialog.addError(error);
     });
+
     this.currentQuestion = '';
+    queueMicrotask(() => this.scrollToBottom());
+  }
+
+  private scrollToBottom(): void {
+    const element = this.chatThread?.nativeElement;
+    if (!element) {
+      return;
+    }
+
+    element.scrollTo({
+      top: element.scrollHeight,
+      behavior: 'smooth'
+    });
   }
 
 }
