@@ -1,63 +1,87 @@
 @let repo=repository();
 @if (repo.hasValue()) {
-  <div class="page-shell">
+  <div class="chat-page">
     @let repoConfig = repo.value();
 
-    <header class="chat-header">
-      <div class="chat-title">Dont-code Application Generator</div>
-      <div class="chat-subtitle">For {{repoConfig.name}}</div>
-      <div class="chat-description">{{repoConfig.description}}</div>
+    <header class="hero">
+      <div class="hero-badge">AI chat</div>
+      <h1 class="hero-title">Dont-code Application Generator</h1>
+      <div class="hero-subtitle">For {{repoConfig.name}}</div>
+      <p class="hero-description">{{repoConfig.description}}</p>
     </header>
 
-    <section class="chat-thread">
-      @for (item of dialog.dialogSession(); track item.id) {
-        @if (item.isQuestion) {
-          <div class="message-row message-row-left">
-            <div class="message-bubble message-user">
-              <div class="message-label">You</div>
-              <div class="message-text">{{item.text}}</div>
-            </div>
+    <section class="chat-card">
+      <div class="chat-card-header">
+        <div class="chat-participant">
+          <div class="chat-avatar assistant-avatar">AI</div>
+          <div>
+            <div class="chat-name">Application assistant</div>
+            <div class="chat-status">Ready to discuss your app idea</div>
           </div>
-        } @else if (item.errorMessage!=null) {
-          <div class="message-row message-row-right">
-            <div class="message-bubble message-error">
-              <div class="message-label message-label-error">
-                <mat-icon>warning</mat-icon>
-                <span>Error</span>
-              </div>
-              <div class="message-text">{{item.errorMessage}}</div>
-            </div>
-          </div>
-        } @else {
-          <div class="message-row message-row-right">
-            <div class="message-bubble message-assistant">
-              <div class="message-label">LLM</div>
-              <div class="message-text">{{item.text}}</div>
-            </div>
-          </div>
-        }
-      }
-    </section>
+        </div>
+      </div>
 
-    <form class="composer" (ngSubmit)="addQuestion()">
-      <mat-form-field class="dialog-full-width composer-field" appearance="outline">
-        <mat-label>Describe the application you need</mat-label>
-        <textarea
-          matInput
-          type="text"
-          name="question"
-          [(ngModel)]="currentQuestion"
-          rows="4"
-        ></textarea>
-        <button
-          matIconButton
-          matSuffix
-          type="submit"
-          aria-label="Send message"
-        >
-          <mat-icon>arrow_forward</mat-icon>
-        </button>
-      </mat-form-field>
-    </form>
+      <div class="chat-thread">
+        @for (item of dialog.dialogSession(); track item.id) {
+          @if (item.isQuestion) {
+            <div class="message-row message-row-left">
+              <div class="message-side">
+                <div class="chat-avatar user-avatar">You</div>
+              </div>
+              <div class="message-bubble message-user">
+                <div class="message-meta">User</div>
+                <div class="message-text">{{item.text}}</div>
+              </div>
+            </div>
+          } @else if (item.errorMessage!=null) {
+            <div class="message-row message-row-right">
+              <div class="message-bubble message-error">
+                <div class="message-meta message-meta-error">
+                  <mat-icon>warning</mat-icon>
+                  <span>Error</span>
+                </div>
+                <div class="message-text">{{item.errorMessage}}</div>
+              </div>
+              <div class="message-side">
+                <div class="chat-avatar error-avatar">!</div>
+              </div>
+            </div>
+          } @else {
+            <div class="message-row message-row-right">
+              <div class="message-bubble message-assistant">
+                <div class="message-meta">Assistant</div>
+                <div class="message-text">{{item.text}}</div>
+              </div>
+              <div class="message-side">
+                <div class="chat-avatar assistant-avatar">AI</div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+
+      <form class="composer" (ngSubmit)="addQuestion()">
+        <div class="composer-shell">
+          <mat-form-field class="dialog-full-width composer-field" appearance="outline">
+            <mat-label>Describe the application you need</mat-label>
+            <textarea
+              matInput
+              type="text"
+              name="question"
+              [(ngModel)]="currentQuestion"
+              rows="3"
+            ></textarea>
+            <button
+              matIconButton
+              matSuffix
+              type="submit"
+              aria-label="Send message"
+            >
+              <mat-icon>send</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+      </form>
+    </section>
   </div>
 }

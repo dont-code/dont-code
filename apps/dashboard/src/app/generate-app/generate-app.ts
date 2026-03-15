@@ -1,8 +1,8 @@
 import {Component, inject, input, OnInit} from '@angular/core';
 import {RepositoryConfig} from '../model/repository-config';
-import {httpResource, HttpResourceRef} from '@angular/common/http';
+import {HttpResourceRef} from '@angular/common/http';
 import {ConfigService} from '../shared/config-service/config-service';
-import {MatFormField, MatInput, MatLabel, MatPrefix, MatSuffix} from '@angular/material/input';
+import {MatFormField, MatInput, MatLabel, MatSuffix} from '@angular/material/input';
 import {DialogService} from '../shared/dialog-service/dialog-service';
 import {FormsModule} from '@angular/forms';
 import {MatIconButton} from '@angular/material/button';
@@ -18,8 +18,7 @@ import {GenerateAppService} from '../shared/generate-app-service/generate-app-se
     FormsModule,
     MatIconButton,
     MatIcon,
-    MatSuffix,
-    MatPrefix
+    MatSuffix
   ],
   templateUrl: './generate-app.html',
   styleUrl: './generate-app.css',
