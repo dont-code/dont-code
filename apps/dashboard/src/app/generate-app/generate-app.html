@@ -14,10 +14,33 @@
 
   </div>
   <div class="gap-4 p-8">
-    <form class="dialog-form">
-      <mat-form-field class="dialog-full-width">
+    @for (item of dialog.dialogSession(); track item.id) {
+      @if (item.isQuestion) {
+        <mat-form-field class="dialog-old-question gap-4 p-8">
+          <textarea matInput disabled [value]="item.text"></textarea>
+        </mat-form-field>
+      } @else if (item.errorMessage!=null)
+      {
+        <mat-form-field class="dialog-old-response error  gap-4 p-8">
+          <mat-icon matPrefix>warning</mat-icon>
+          <textarea matInput disabled [value]="item.errorMessage"></textarea>
+        </mat-form-field>
+      } @else {
+        <mat-form-field class="dialog-old-response  gap-4 p-8">
+          <textarea matInput disabled [value]="item.text"></textarea>
+        </mat-form-field>
+      }
+    }
+    <form class="dialog-form" (ngSubmit)="addQuestion()">
+      <mat-form-field class="dialog-full-width  gap-4 p-8" appearance="fill">
         <mat-label>Describe the application you need</mat-label>
-        <textarea matInput name="question" rows="6" value="I'd like to have an application for ..."></textarea>
+        <textarea matInput type="text" name="question" [(ngModel)]="currentQuestion" rows="4"></textarea>
+        <button
+          matIconButton
+          matSuffix
+          type="submit"
+        ><mat-icon>arrow_forward</mat-icon>
+        </button>
       </mat-form-field>
     </form>
 

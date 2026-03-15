@@ -1,7 +1,26 @@
 .dialog-form {
   min-width: 18em;
   max-width: 140em;
-  width: 100%;
+  width: 80%;
+}
+
+.dialog-old-question {
+  min-width: 18em;
+  max-width: 140em;
+  width: 60%;
+}
+
+.dialog-old-response {
+  min-width: 18em;
+  max-width: 140em;
+  width:60%;
+  margin-left: 20%;
+  margin-right: 0;
+}
+
+.error {
+  color: red;
+  background-color: orange;
 }
 
 .dialog-full-width {
