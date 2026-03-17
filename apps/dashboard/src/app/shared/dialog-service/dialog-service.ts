@@ -20,13 +20,17 @@ export class DialogService {
     });
   }
 
-  addAnswer (response:string):void {
+  addAnswer (response:any):void {
     const answer = new QuestionOrAnswer();
     answer.isQuestion = false;
     try {
-      const responseModel = JSON.parse(response) as GenerateAppModel;
-      answer.model=responseModel.model;
-      answer.text = responseModel.response;
+      const responseModel = (typeof response == "string")?JSON.parse(response) as GenerateAppModel:response as GenerateAppModel;
+      answer.model=responseModel.model??null;
+      if ((responseModel.error!=null)&&(responseModel.error.length>0)){
+        answer.errorMessage=responseModel.error;
+      } else {
+        answer.text = responseModel.response;
+      }
     } catch (error) {
       console.error(error);
       answer.errorMessage=(error as SyntaxError).toString();

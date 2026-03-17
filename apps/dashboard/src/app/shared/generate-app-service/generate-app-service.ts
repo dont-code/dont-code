@@ -8,9 +8,9 @@ import {ConfigService} from '../config-service/config-service';
 export class GenerateAppService {
   protected config = inject(ConfigService);
 
-  protected socket: WebSocketSubject<string> | null = null;
+  protected socket: WebSocketSubject<any> | null = null;
 
-  protected receivers: Array<(msg:string) => void> = [];
+  protected receivers: Array<{id:number, next:(msg:any) => void, error:(err:Error) => void}> = [];
 
   generateApiUrl = computed(() => {
     return this.config.repository.value()?.generateApiUrl;
@@ -27,7 +27,7 @@ export class GenerateAppService {
 
   protected connectionStatus = signal<string>("Not connected");
 
-  protected openWebSocket (): Promise<WebSocketSubject<string>> {
+  protected openWebSocket (): Promise<WebSocketSubject<any>> {
     // Check if there is one already opened
     if (this.socket!=null) {
       if (!this.socket.closed) {
@@ -39,7 +39,7 @@ export class GenerateAppService {
     if (socketUrl==null) {
       return Promise.reject("No Websocket Url to connect to")
     } else {
-      const ret = new Promise<WebSocketSubject<string>>((resolve, reject) => {
+      const ret = new Promise<WebSocketSubject<any>>((resolve, reject) => {
         const config: WebSocketSubjectConfig<any> = {
           url: socketUrl,
           closeObserver: {
@@ -69,7 +69,7 @@ export class GenerateAppService {
 
             console.debug('message received: ' , msg);
             for (const receiver of this.receivers) {
-              receiver(msg);
+              receiver.next(msg);
             }
 /*            const newId=msg?.sessionId;
             if ((newId) && (newId !== this.sessionId)){
@@ -83,6 +83,9 @@ export class GenerateAppService {
             console.error(err);
             this.socket?.unsubscribe();
             this.connectionStatus.set("ERROR:" + err);
+            for (const receiver of this.receivers) {
+              receiver.error(err);
+            }
           },
           // Called if WebSocket API signals some kind of error
           complete: () => {
@@ -102,9 +105,28 @@ export class GenerateAppService {
     return this.openWebSocket().then (socket => socket.next(newChange));
   }
 
-  messageReceiver(receiver: (response:string) => void):number {
-    return this.receivers.push(receiver);
+  messageReceiver(receiver: (response:any) => void, error:(err:Error) => void):number {
+    const toAdd={id:0,next:receiver, error:error};
+    let nextId=0;
+    for (const receiver of this.receivers) {
+      if (receiver.id >= nextId) {
+        nextId = receiver.id+1;
+      }
+    }
+    toAdd.id=nextId;
+    this.receivers.push(toAdd);
+    return nextId;
   }
 
 
+  removeReceiver(toRemoveId: number) {
+    let pos=0;
+    for (const toRemove of this.receivers) {
+      if (toRemove.id==toRemoveId) {
+        this.receivers= this.receivers.splice(pos, 1);
+        break;
+      }
+      pos++;
+    }
+  }
 }

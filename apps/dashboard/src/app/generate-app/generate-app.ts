@@ -1,6 +1,5 @@
-import {Component, computed, effect, ElementRef, inject, input, OnInit, ViewChild} from '@angular/core';
+import {Component, computed, effect, ElementRef, inject, input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {HttpResourceRef} from '@angular/common/http';
-import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import {RepositoryConfig} from '../model/repository-config';
 import {ConfigService} from '../shared/config-service/config-service';
 import {MatFormField, MatInput, MatLabel, MatSuffix} from '@angular/material/input';
@@ -27,7 +26,7 @@ import {PreviewApp} from '../preview-app/preview-app';
   templateUrl: './generate-app.html',
   styleUrl: './generate-app.css',
 })
-export class GenerateApp implements OnInit {
+export class GenerateApp implements OnInit, OnDestroy {
 
   @ViewChild('chatThread')
   private chatThread?: ElementRef<HTMLDivElement>;
@@ -40,6 +39,8 @@ export class GenerateApp implements OnInit {
 
   protected currentQuestion: string = "I'd like to have an application for ...";
   protected isWaitingForAnswer = false;
+
+  protected toDisconnect: Array<number>=[];
 
   protected latestGeneratedApp = computed<ApplicationModel | undefined>(() => {
     const session = this.dialog.dialogSession();
@@ -59,16 +60,21 @@ export class GenerateApp implements OnInit {
     });
   }
 
+
   repository(): HttpResourceRef<RepositoryConfig | undefined> {
     return this.config.repository;
   }
 
   ngOnInit(): void {
     this.config.updateRepoName(this.repoName());
-    this.generator.messageReceiver((response) => {
-      this.isWaitingForAnswer = false;
-      this.dialog.addAnswer(response);
-    });
+    this.toDisconnect.push(this.generator.messageReceiver((response) => {
+        this.isWaitingForAnswer = false;
+        this.dialog.addAnswer(response);
+      }, (err:Error) => {
+        this.isWaitingForAnswer = false;
+        this.dialog.addError(err);
+      })
+    );
   }
 
   addQuestion() {
@@ -100,6 +106,12 @@ export class GenerateApp implements OnInit {
       top: element.scrollHeight,
       behavior: 'smooth'
     });
+  }
+
+  ngOnDestroy(): void {
+    for (const toRemove of this.toDisconnect) {
+      this.generator.removeReceiver(toRemove);
+    }
   }
 
 }

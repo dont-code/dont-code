@@ -5,5 +5,6 @@ import {ApplicationModel} from './application';
  */
 export type GenerateAppModel = {
   response:string,
-  model: ApplicationModel
+  error?:string,
+  model?: ApplicationModel
 }
