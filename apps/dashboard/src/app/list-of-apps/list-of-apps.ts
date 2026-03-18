@@ -1,8 +1,9 @@
-import {ChangeDetectionStrategy, Component, computed, input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, input, OnInit} from '@angular/core';
 import {AppInfo} from '../model/app-info';
 import {AppPanel} from '../app-panel/app-panel';
-import {httpResource} from '@angular/common/http';
+import {httpResource, HttpResourceRef} from '@angular/common/http';
 import {RepositoryConfig} from '../model/repository-config';
+import {ConfigService} from '../shared/config-service/config-service';
 
 @Component({
   selector: 'app-list-of-apps',
@@ -13,19 +14,19 @@ import {RepositoryConfig} from '../model/repository-config';
   styleUrl: './list-of-apps.css',
   changeDetection:ChangeDetectionStrategy.OnPush
 })
-export class ListOfApps {
+export class ListOfApps implements OnInit {
 
   repoName = input<string>();
 
-  config = httpResource<RepositoryConfig>(() => {
-    if (this.repoName()) {
-      return 'assets/config/'+this.repoName()+'.json';
-    } else return 'assets/config/default.json'
-  });
+  config = inject(ConfigService);
+
+  repository (): HttpResourceRef<RepositoryConfig | undefined> {
+    return this.config.repository;
+  }
 
   appInDb = httpResource<any[]>(() => {
-      if (this.config.hasValue()) {
-        return this.config.value()?.projectApiUrl;
+      if (this.repository().hasValue()) {
+        return this.repository().value()?.projectApiUrl;
       }
       return undefined
     }
@@ -52,4 +53,9 @@ export class ListOfApps {
     }
     return [];
   })
+
+  ngOnInit(): void {
+    this.config.updateRepoName(this.repoName());
+  }
+
 }

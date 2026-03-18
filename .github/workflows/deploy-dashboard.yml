@@ -31,7 +31,7 @@ jobs:
           username: ${{secrets.DONTCODE_WEBSITE_USER}}
           password: ${{secrets.DONTCODE_WEBSITE_PASSWORD}}
           local_path: './apps/dashboard/dist/dashboard/browser/*'
-          remote_path: '/www/apps'
-          server: 'test.${{secrets.DONTCODE_WEBSITE_HOST}}'
+          remote_path: '/www/dashboard'
+          server: ${{secrets.DONTCODE_WEBSITE_HOST}}
           port: ${{secrets.DONTCODE_WEBSITE_SSH_PORT}}
           sftp_only: 'true'
