@@ -4,5 +4,5 @@
   "description": "Repository provided by Dont-code using stable versions of plugins to connect to demo services.",
   "projectApiUrl": "https://test.dont-code.net/demo/project",
   "generateApiUrl": "https://test.dont-code.net/demo/generate",
-  "applicationHostUrl": "https://test.dont-code.net/apps/latest/host/?repository=default&"
+  "applicationHostUrl": "https://dont-code.net/apps/latest/host/?repository=default&"
 }
