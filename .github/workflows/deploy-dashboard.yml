@@ -35,3 +35,13 @@ jobs:
           server: ${{secrets.DONTCODE_WEBSITE_HOST}}
           port: ${{secrets.DONTCODE_WEBSITE_SSH_PORT}}
           sftp_only: 'true'
+      - name: Deploy Generator to dont-code.net
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.6
+        with:
+          username: ${{secrets.DONTCODE_WEBSITE_USER}}
+          password: ${{secrets.DONTCODE_WEBSITE_PASSWORD}}
+          local_path: './apps/dashboard/dist/dashboard/server/*'
+          remote_path: '/www/dashboard/generate'
+          server: ${{secrets.DONTCODE_WEBSITE_HOST}}
+          port: ${{secrets.DONTCODE_WEBSITE_SSH_PORT}}
+          sftp_only: 'true'
