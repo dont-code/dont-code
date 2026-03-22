@@ -19,6 +19,7 @@ export class PreviewApp {
   sanitizer = inject(DomSanitizer);
 
   protected previewMode: 'desktop' | 'mobile' = 'desktop';
+  protected structureMode: 'structure' | 'preview' = 'structure';
 
   repository(): HttpResourceRef<RepositoryConfig | undefined> {
     return this.config.repository;
@@ -44,6 +45,11 @@ export class PreviewApp {
   setPreviewMode(mode: 'desktop' | 'mobile'): void {
     this.previewMode = mode;
   }
+
+  setStructureMode(mode: 'structure' | 'preview'): void {
+    this.structureMode = mode;
+  }
+
 
   private slugify(value: string): string {
     return value

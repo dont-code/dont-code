@@ -8,6 +8,24 @@
   gap: 1rem;
 }
 
+.preview-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.preview-toggle {
+  display: inline-flex;
+  padding: 0.2rem;
+}
+
+.preview-switch-slot {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
 .preview-switch {
   display: inline-flex;
   padding: 0.2rem;
@@ -301,3 +319,29 @@
     width: 100%;
   }
 }
+
+.preview-toggle {
+  display: inline-flex;
+  margin: 1rem 1rem 0;
+  padding: 0.2rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+}
+
+.preview-toggle-btn {
+  border: 0;
+  background: transparent;
+  color: #475569;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.preview-toggle-btn-active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
