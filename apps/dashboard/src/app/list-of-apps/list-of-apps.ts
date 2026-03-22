@@ -5,12 +5,16 @@ import {httpResource, HttpResourceRef} from '@angular/common/http';
 import {RepositoryConfig} from '../model/repository-config';
 import {ConfigService} from '../shared/config-service/config-service';
 import {RouterLink} from '@angular/router';
+import {MatButton} from '@angular/material/button';
+import {MatIcon} from '@angular/material/icon';
 
 @Component({
   selector: 'app-list-of-apps',
   imports: [
     AppPanel,
-    RouterLink
+    RouterLink,
+    MatButton,
+    MatIcon
   ],
   templateUrl: './list-of-apps.html',
   styleUrl: './list-of-apps.css',
@@ -60,4 +64,7 @@ export class ListOfApps implements OnInit {
     this.config.updateRepoName(this.repoName());
   }
 
+  protected linkToGeneratePage() {
+    return '/generate/'+this.repoName();
+  }
 }
