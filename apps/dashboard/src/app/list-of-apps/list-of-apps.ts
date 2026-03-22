@@ -4,11 +4,13 @@ import {AppPanel} from '../app-panel/app-panel';
 import {httpResource, HttpResourceRef} from '@angular/common/http';
 import {RepositoryConfig} from '../model/repository-config';
 import {ConfigService} from '../shared/config-service/config-service';
+import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-list-of-apps',
   imports: [
-    AppPanel
+    AppPanel,
+    RouterLink
   ],
   templateUrl: './list-of-apps.html',
   styleUrl: './list-of-apps.css',
