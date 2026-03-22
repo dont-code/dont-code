@@ -4,10 +4,13 @@ import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import {ConfigService} from '../shared/config-service/config-service';
 import {HttpResourceRef} from '@angular/common/http';
 import {RepositoryConfig} from '../model/repository-config';
+import {MatIcon} from '@angular/material/icon';
 
 @Component({
   selector: 'app-preview-app',
-  imports: [],
+  imports: [
+    MatIcon
+  ],
   templateUrl: './preview-app.html',
   styleUrl: './preview-app.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

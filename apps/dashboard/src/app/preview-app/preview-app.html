@@ -4,45 +4,41 @@
   </div>
 
   <div class="preview-header-controls">
-    <div class="preview-toggle">
-      <button
-        type="button"
-        class="preview-toggle-btn"
-        [class.preview-toggle-btn-active]="structureMode === 'structure'"
-        (click)="setStructureMode('structure')"
-      >
-        Structure view
-      </button>
-      <button
-        type="button"
-        class="preview-toggle-btn"
-        [class.preview-toggle-btn-active]="structureMode === 'preview'"
-        (click)="setStructureMode('preview')"
-      >
-        Preview
-      </button>
+    <div class="preview-toggle-slot">
+      <div class="preview-toggle">
+        <button
+          type="button"
+          class="preview-toggle-btn"
+          [class.preview-toggle-btn-active]="structureMode === 'structure'"
+          (click)="setStructureMode('structure')"
+        >
+          Structure
+        </button>
+        <button
+          type="button"
+          class="preview-toggle-btn"
+          [class.preview-toggle-btn-active]="structureMode === 'preview'"
+          (click)="setStructureMode('preview')"
+        >
+          Preview
+        </button>
+      </div>
     </div>
 
     <div class="preview-switch-slot">
       @if (structureMode === 'preview') {
-        <div class="preview-switch">
-          <button
-            type="button"
-            class="preview-switch-btn"
-            [class.preview-switch-btn-active]="previewMode === 'desktop'"
-            (click)="setPreviewMode('desktop')"
-          >
-            Desktop
-          </button>
-          <button
-            type="button"
-            class="preview-switch-btn"
-            [class.preview-switch-btn-active]="previewMode === 'mobile'"
-            (click)="setPreviewMode('mobile')"
-          >
-            Mobile
-          </button>
-        </div>
+        <button
+          type="button"
+          class="preview-device-toggle"
+          [class.preview-device-toggle-mobile]="previewMode === 'mobile'"
+          (click)="setPreviewMode(previewMode === 'desktop' ? 'mobile' : 'desktop')"
+          [attr.aria-label]="previewMode === 'desktop' ? 'Switch to mobile preview' : 'Switch to desktop preview'"
+          [attr.title]="previewMode === 'desktop' ? 'Switch to mobile preview' : 'Switch to desktop preview'"
+        >
+          <mat-icon class="preview-device-toggle-icon">
+            {{ previewMode === 'desktop' ? 'smartphone' : 'desktop_windows' }}
+          </mat-icon>
+        </button>
       }
     </div>
   </div>
