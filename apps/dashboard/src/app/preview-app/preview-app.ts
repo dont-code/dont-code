@@ -25,7 +25,7 @@ export class PreviewApp {
   }
 
   protected previewUrl = computed<SafeResourceUrl | null>(() => {
-    /*const repo = this.repository().value();
+    const repo = this.repository().value();
     const app = this.latestGeneratedApp();
     const applicationHostUrl = repo?.applicationHostUrl;
 
@@ -38,8 +38,7 @@ export class PreviewApp {
       : applicationHostUrl;
     const appSlug = this.slugify(app.name);
 
-    return this.sanitizer.bypassSecurityTrustResourceUrl(`${baseUrl}/${appSlug}`);*/
-    return null;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(`${baseUrl}/${appSlug}`);
   });
 
   setPreviewMode(mode: 'desktop' | 'mobile'): void {
