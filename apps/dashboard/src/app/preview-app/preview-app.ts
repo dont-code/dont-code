@@ -40,9 +40,9 @@ export class PreviewApp {
     const baseUrl = applicationHostUrl.endsWith('/')
       ? applicationHostUrl.slice(0, -1)
       : applicationHostUrl;
-    const appSlug = this.slugify(app.name);
+    const appSlug = encodeURIComponent(JSON.stringify(app));
 
-    return this.sanitizer.bypassSecurityTrustResourceUrl(`${baseUrl}/${appSlug}`);
+    return this.sanitizer.bypassSecurityTrustResourceUrl(`${baseUrl}prjDef=${appSlug}`);
   });
 
   setPreviewMode(mode: 'desktop' | 'mobile'): void {
