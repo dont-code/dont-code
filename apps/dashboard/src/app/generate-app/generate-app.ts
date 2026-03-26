@@ -31,9 +31,11 @@ import {SaveApplicationDialog} from './save-application-dialog';
   styleUrl: './generate-app.css',
 })
 export class GenerateApp implements OnInit, OnDestroy {
-
   @ViewChild('chatThread')
   private chatThread?: ElementRef<HTMLDivElement>;
+
+  @ViewChild(PreviewApp)
+  private previewApp?: PreviewApp;
 
   repoName = input<string>();
 
@@ -74,6 +76,10 @@ export class GenerateApp implements OnInit, OnDestroy {
     return this.config.repository;
   }
 
+  protected isFullscreen(): boolean {
+    return this.previewApp?.isFullscreen() ?? false;
+  }
+
   ngOnInit(): void {
     this.config.updateRepoName(this.repoName());
     this.toDisconnect.push(this.generator.messageReceiver((response) => {
@@ -111,6 +117,7 @@ export class GenerateApp implements OnInit, OnDestroy {
     const dialogRef = this.matDialog.open(SaveApplicationDialog, {
       width: '32rem',
       disableClose: false,
+      panelClass: 'save-application-dialog-panel',
       data: {
         applicationName: this.latestGeneratedApp()?.name ?? ''
       }

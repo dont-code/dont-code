@@ -36,6 +36,43 @@
     linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
 }
 
+.chat-page-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  padding: 0;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.hero-hidden-fullscreen,
+.chat-card-hidden-fullscreen,
+.preview-card-fullscreen-hidden {
+  display: none;
+}
+
+.workspace-fullscreen {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  display: block;
+}
+
+.workspace-fullscreen .preview-card {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  border-radius: 0;
+}
+
+.workspace-fullscreen app-preview-app {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .hero {
   max-width: 96rem;
   margin: 0 auto 1.5rem;
@@ -351,6 +388,10 @@
   color: #b91c1c;
 }
 
+.save-application-dialog-panel {
+  z-index: 1100;
+}
+
 @media (max-width: 1100px) {
   .workspace {
     grid-template-columns: 1fr;
@@ -387,10 +428,29 @@
 .preview-body-fullscreen {
   position: fixed;
   inset: 0;
-  z-index: 1000;
-  background: rgba(15, 23, 42, 0.96);
+  z-index: 900;
+  width: 100vw;
+  height: 100vh;
   padding: 1rem;
+  background: rgba(15, 23, 42, 0.96);
   overflow: auto;
+}
+
+.preview-body-fullscreen .runtime-slot {
+  min-height: calc(100vh - 2rem);
+}
+
+.preview-body-fullscreen .preview-surface {
+  min-height: calc(100vh - 12rem);
+}
+
+.preview-body-fullscreen .preview-iframe {
+  min-height: calc(100vh - 12rem);
+  max-height: calc(100vh - 12rem);
+}
+
+.preview-body-fullscreen .preview-app-window {
+  min-height: calc(100vh - 12rem);
 }
 
 .preview-surface-fullscreen {

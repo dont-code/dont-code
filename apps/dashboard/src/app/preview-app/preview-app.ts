@@ -62,6 +62,10 @@ export class PreviewApp {
     return this.fullscreenMode;
   }
 
+  get fullscreenPreviewClass(): string {
+    return this.fullscreenMode ? 'fullscreen-preview' : '';
+  }
+
   private slugify(value: string): string {
     return value
       .normalize('NFD')
