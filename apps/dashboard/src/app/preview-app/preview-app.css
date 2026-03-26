@@ -365,6 +365,58 @@
   color: #64748b;
   line-height: 1.5;
 }
+.preview-header-controls {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  align-items: center;
+  column-gap: 0.75rem;
+  min-height: 2.5rem;
+}
+
+.preview-body-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  width: 100vw;
+  height: 100vh;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.96);
+  overflow: auto;
+}
+
+.preview-body-fullscreen .runtime-slot {
+  min-height: calc(100vh - 2rem);
+}
+
+.preview-body-fullscreen .preview-surface {
+  min-height: calc(100vh - 12rem);
+}
+
+.preview-body-fullscreen .preview-iframe {
+  min-height: calc(100vh - 12rem);
+  max-height: calc(100vh - 12rem);
+}
+
+.preview-body-fullscreen .preview-app-window {
+  min-height: calc(100vh - 12rem);
+}
+
+.preview-surface-fullscreen {
+  min-height: calc(100vh - 12rem);
+}
+
+.preview-fullscreen-toggle {
+  min-width: 2.5rem;
+}
+
+.preview-iframe-fullscreen {
+  min-height: calc(100vh - 12rem);
+  max-height: calc(100vh - 12rem);
+}
+
+.preview-app-window-fullscreen {
+  min-height: calc(100vh - 12rem);
+}
 
 .preview-body-fullscreen {
   position: fixed;

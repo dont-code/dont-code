@@ -1,16 +1,16 @@
 @let repo=repository();
 @if (repo.hasValue()) {
-  <div class="chat-page">
+  <div class="chat-page" [class.chat-page-fullscreen]="isFullscreen()">
     @let repoConfig = repo.value();
 
-    <header class="hero">
+    <header class="hero" [class.hero-hidden-fullscreen]="isFullscreen()">
       <h1 class="hero-title">Dont-code Application Generator</h1>
       <div class="hero-subtitle">For {{repoConfig.name}}</div>
       <p class="hero-warning"><mat-icon>bolt</mat-icon> Beta version, please do not use for sensitive or critical data.</p>
     </header>
 
     <section class="workspace">
-      <section class="chat-card">
+      <section class="chat-card" [class.chat-card-hidden-fullscreen]="isFullscreen()">
         <div class="chat-card-header">
           <div class="chat-participant">
             <div class="chat-avatar assistant-avatar">AI</div>
@@ -109,12 +109,9 @@
         </form>
       </section>
 
-      <aside class="preview-card">
+      <aside class="preview-card" [class.preview-card-hidden-fullscreen]="isFullscreen()">
         <app-preview-app [latestGeneratedApp]="latestGeneratedApp()"></app-preview-app>
       </aside>
     </section>
   </div>
-
-  @if (false) { }
 }
-@if (false) { }
