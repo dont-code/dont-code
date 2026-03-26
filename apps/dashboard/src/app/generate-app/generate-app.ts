@@ -11,6 +11,8 @@ import {GenerateAppService} from '../shared/generate-app-service/generate-app-se
 import {ApplicationModel} from '../model/application';
 import {PreviewApp} from '../preview-app/preview-app';
 import {lastValueFrom} from 'rxjs';
+import {MatDialog, MatDialogModule} from '@angular/material/dialog';
+import {SaveApplicationDialog} from './save-application-dialog';
 
 @Component({
   selector: 'app-generate-app',
@@ -22,6 +24,7 @@ import {lastValueFrom} from 'rxjs';
     MatIconButton,
     MatIcon,
     MatSuffix,
+    MatDialogModule,
     PreviewApp
   ],
   templateUrl: './generate-app.html',
@@ -38,6 +41,7 @@ export class GenerateApp implements OnInit, OnDestroy {
   dialog = inject(UserDialogService);
   generator = inject(GenerateAppService);
   httpClient = inject(HttpClient);
+  matDialog = inject(MatDialog);
 
   protected currentQuestion: string = "I'd like to have an application for ...";
   protected isWaitingForAnswer = false;
@@ -101,13 +105,24 @@ export class GenerateApp implements OnInit, OnDestroy {
   }
 
   async saveApplication(): Promise<void> {
-    const appName = window.prompt('Application name');
-    if (!appName?.trim()) {
+    this.saveStatusMessage = '';
+    this.saveStatusType = '';
+
+    const dialogRef = this.matDialog.open(SaveApplicationDialog, {
+      width: '32rem',
+      disableClose: false,
+      data: {
+        applicationName: this.latestGeneratedApp()?.name ?? ''
+      }
+    });
+
+    const applicationName = await lastValueFrom(dialogRef.afterClosed());
+    if (!applicationName) {
       return;
     }
 
     try {
-      await this.saveProjectDefinition(appName.trim());
+      await this.saveProjectDefinition(applicationName);
       this.saveStatusType = 'success';
       this.saveStatusMessage = 'Saving was ok.';
     } catch (error) {
