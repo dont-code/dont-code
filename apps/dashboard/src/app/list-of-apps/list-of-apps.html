@@ -1,7 +1,7 @@
 @let repo=repository();
 @if (repo.hasValue()) {
   <div class="gap-4 p-8">
-    @let repoConfig = repo.value();
+    @let repoConfig = repo.value()!;
     <div class="text-center text-3xl text-shadow-md">
     List of apps for {{repoConfig.name}}
     </div>

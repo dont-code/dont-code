@@ -105,6 +105,23 @@
               </button>
             </mat-form-field>
           </div>
+
+          <div class="composer-actions">
+            <button type="button" class="save-button" (click)="saveApplication()">
+              <mat-icon>save</mat-icon>
+              Save application
+            </button>
+
+            @if (saveStatusMessage) {
+              <div
+                class="save-status"
+                [class.save-status-success]="saveStatusType === 'success'"
+                [class.save-status-error]="saveStatusType === 'error'"
+              >
+                {{ saveStatusMessage }}
+              </div>
+            }
+          </div>
         </form>
       </section>
 

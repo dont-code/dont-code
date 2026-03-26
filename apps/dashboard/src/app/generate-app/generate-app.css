@@ -311,6 +311,45 @@
   display: block;
 }
 
+.composer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.save-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.75rem 1rem;
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18);
+}
+
+.save-button:hover {
+  background: #1d4ed8;
+}
+
+.save-status {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.save-status-success {
+  color: #15803d;
+}
+
+.save-status-error {
+  color: #b91c1c;
+}
 
 @media (max-width: 1100px) {
   .workspace {

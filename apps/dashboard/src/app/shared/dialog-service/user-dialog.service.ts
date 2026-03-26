@@ -1,13 +1,11 @@
 import {Injectable, signal} from '@angular/core';
 import {QuestionOrAnswer} from './question-answer';
-import {GenerateApp} from '../../generate-app/generate-app';
-import {ApplicationModel} from '../../model/application';
 import {GenerateAppModel} from '../../model/generate-app';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DialogService {
+export class UserDialogService {
   dialogSession = signal<Array<QuestionOrAnswer>>([]);
 
   addQuestion (text:string):void {

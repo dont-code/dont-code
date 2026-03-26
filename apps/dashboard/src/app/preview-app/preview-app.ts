@@ -23,6 +23,7 @@ export class PreviewApp {
 
   protected previewMode: 'desktop' | 'mobile' = 'desktop';
   protected structureMode: 'structure' | 'preview' = 'structure';
+  protected fullscreenMode = false;
 
   repository(): HttpResourceRef<RepositoryConfig | undefined> {
     return this.config.repository;
@@ -53,6 +54,13 @@ export class PreviewApp {
     this.structureMode = mode;
   }
 
+  toggleFullscreen(): void {
+    this.fullscreenMode = !this.fullscreenMode;
+  }
+
+  isFullscreen(): boolean {
+    return this.fullscreenMode;
+  }
 
   private slugify(value: string): string {
     return value
@@ -63,5 +71,4 @@ export class PreviewApp {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
   }
-
 }

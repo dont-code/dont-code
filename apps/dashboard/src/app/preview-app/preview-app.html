@@ -41,6 +41,20 @@
         </button>
       }
     </div>
+
+    <div class="preview-switch-slot">
+      <button
+        type="button"
+        class="preview-device-toggle preview-fullscreen-toggle"
+        (click)="toggleFullscreen()"
+        [attr.aria-label]="isFullscreen() ? 'Exit full screen preview' : 'Enter full screen preview'"
+        [attr.title]="isFullscreen() ? 'Exit full screen preview' : 'Enter full screen preview'"
+      >
+        <mat-icon class="preview-device-toggle-icon">
+          {{ isFullscreen() ? 'fullscreen_exit' : 'fullscreen' }}
+        </mat-icon>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -48,7 +62,7 @@
 @let iframeUrl = previewUrl();
 
 @if (previewApp) {
-  <div class="preview-body">
+  <div class="preview-body" [class.preview-body-fullscreen]="isFullscreen()">
     <div class="runtime-slot">
       <div class="runtime-slot-header">
         <span class="runtime-dot runtime-dot-red"></span>
@@ -60,18 +74,20 @@
       <div
         class="preview-surface"
         [class.preview-surface-mobile]="previewMode === 'mobile'"
+        [class.preview-surface-fullscreen]="isFullscreen()"
       >
         @if ((iframeUrl)&& (structureMode === 'preview')) {
           <div class="preview-frame-shell">
             <iframe
               class="preview-iframe"
               [class.preview-iframe-mobile]="previewMode === 'mobile'"
+              [class.preview-iframe-fullscreen]="isFullscreen()"
               [src]="iframeUrl"
               title="Generated application preview"
             ></iframe>
           </div>
         } @else {
-          <div class="preview-app-window">
+          <div class="preview-app-window" [class.preview-app-window-fullscreen]="isFullscreen()">
             <div class="preview-app-topbar">
               <div class="preview-app-brand">{{previewApp.name}}</div>
               <div class="preview-app-pill">Generated</div>
@@ -85,12 +101,12 @@
                 </div>
 
                 <div class="preview-badges">
-                          <span class="preview-badge">
-                            {{previewApp.content.creation.entities?.length || 0}} entities
-                          </span>
                   <span class="preview-badge">
-                            {{previewApp.content.creation.sharing?.with || 'No sharing info'}}
-                          </span>
+                    {{previewApp.content.creation.entities?.length || 0}} entities
+                  </span>
+                  <span class="preview-badge">
+                    {{previewApp.content.creation.sharing?.with || 'No sharing info'}}
+                  </span>
                 </div>
               </div>
 

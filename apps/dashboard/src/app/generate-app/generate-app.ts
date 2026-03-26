@@ -1,15 +1,16 @@
 import {Component, computed, effect, ElementRef, inject, input, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {HttpResourceRef} from '@angular/common/http';
+import {HttpClient, HttpResourceRef} from '@angular/common/http';
 import {RepositoryConfig} from '../model/repository-config';
 import {ConfigService} from '../shared/config-service/config-service';
 import {MatFormField, MatInput, MatLabel, MatSuffix} from '@angular/material/input';
-import {DialogService} from '../shared/dialog-service/dialog-service';
+import {UserDialogService} from '../shared/dialog-service/user-dialog.service';
 import {FormsModule} from '@angular/forms';
 import {MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 import {GenerateAppService} from '../shared/generate-app-service/generate-app-service';
 import {ApplicationModel} from '../model/application';
 import {PreviewApp} from '../preview-app/preview-app';
+import {lastValueFrom} from 'rxjs';
 
 @Component({
   selector: 'app-generate-app',
@@ -34,13 +35,18 @@ export class GenerateApp implements OnInit, OnDestroy {
   repoName = input<string>();
 
   config = inject(ConfigService);
-  dialog = inject(DialogService);
+  dialog = inject(UserDialogService);
   generator = inject(GenerateAppService);
+  httpClient = inject(HttpClient);
 
   protected currentQuestion: string = "I'd like to have an application for ...";
   protected isWaitingForAnswer = false;
+  protected saveStatusMessage = '';
+  protected saveStatusType: 'success' | 'error' | '' = '';
 
-  protected toDisconnect: Array<number>=[];
+  protected toDisconnect: Array<number> = [];
+
+  protected currentProject: DontCodeProject | null = null;
 
   protected latestGeneratedApp = computed<ApplicationModel | undefined>(() => {
     const session = this.dialog.dialogSession();
@@ -50,7 +56,7 @@ export class GenerateApp implements OnInit, OnDestroy {
         return item.model;
       }
     }
-    return ;
+    return;
   });
 
   constructor() {
@@ -59,7 +65,6 @@ export class GenerateApp implements OnInit, OnDestroy {
       queueMicrotask(() => this.scrollToBottom());
     });
   }
-
 
   repository(): HttpResourceRef<RepositoryConfig | undefined> {
     return this.config.repository;
@@ -70,7 +75,7 @@ export class GenerateApp implements OnInit, OnDestroy {
     this.toDisconnect.push(this.generator.messageReceiver((response) => {
         this.isWaitingForAnswer = false;
         this.dialog.addAnswer(response);
-      }, (err:Error) => {
+      }, (err: Error) => {
         this.isWaitingForAnswer = false;
         this.dialog.addError(err);
       })
@@ -95,6 +100,21 @@ export class GenerateApp implements OnInit, OnDestroy {
     queueMicrotask(() => this.scrollToBottom());
   }
 
+  async saveApplication(): Promise<void> {
+    const appName = window.prompt('Application name');
+    if (!appName?.trim()) {
+      return;
+    }
+
+    try {
+      await this.saveProjectDefinition(appName.trim());
+      this.saveStatusType = 'success';
+      this.saveStatusMessage = 'Saving was ok.';
+    } catch (error) {
+      this.saveStatusType = 'error';
+      this.saveStatusMessage = `Error while saving: ${error}`;
+    }
+  }
 
   private scrollToBottom(): void {
     const element = this.chatThread?.nativeElement;
@@ -114,4 +134,44 @@ export class GenerateApp implements OnInit, OnDestroy {
     }
   }
 
+  async saveProjectDefinition(prjName: string): Promise<void> {
+    const prjApiUrl = this.config.repository.value()?.projectApiUrl;
+    if (prjApiUrl == null) return Promise.reject('No project API url defined.');
+    const generatedApp = this.latestGeneratedApp();
+
+    if (generatedApp == null) {
+      return Promise.reject('No project definition to save');
+    }
+
+    if (prjName) {
+      if (this.currentProject == null) {
+        this.currentProject = new DontCodeProject();
+      }
+      this.currentProject.lastUpdated = new Date();
+      this.currentProject.name = prjName;
+      this.currentProject.content = generatedApp;
+      try {
+        if (this.currentProject._id) {
+          await lastValueFrom(this.httpClient.put(prjApiUrl + '/' + prjName, this.currentProject, {responseType: 'json'}));
+        } else {
+          await lastValueFrom(this.httpClient.post(prjApiUrl, this.currentProject, {responseType: 'json'})).then(
+            (response: any) => {
+              this.currentProject!._id = response._id;
+            });
+        }
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    }
+  }
+
+}
+
+class DontCodeProject {
+  _id?: string;
+  name: string = '';
+  template: boolean = false;
+  description: string = '';
+  lastUpdated: Date | undefined;
+  content?: ApplicationModel;
 }
