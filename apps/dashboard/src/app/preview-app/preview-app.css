@@ -365,13 +365,6 @@
   color: #64748b;
   line-height: 1.5;
 }
-.preview-header-controls {
-  display: grid;
-  grid-template-columns: auto auto auto;
-  align-items: center;
-  column-gap: 0.75rem;
-  min-height: 2.5rem;
-}
 
 .preview-body-fullscreen {
   position: fixed;
@@ -399,32 +392,6 @@
 
 .preview-body-fullscreen .preview-app-window {
   min-height: calc(100vh - 12rem);
-}
-
-.preview-surface-fullscreen {
-  min-height: calc(100vh - 12rem);
-}
-
-.preview-fullscreen-toggle {
-  min-width: 2.5rem;
-}
-
-.preview-iframe-fullscreen {
-  min-height: calc(100vh - 12rem);
-  max-height: calc(100vh - 12rem);
-}
-
-.preview-app-window-fullscreen {
-  min-height: calc(100vh - 12rem);
-}
-
-.preview-body-fullscreen {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  background: rgba(15, 23, 42, 0.96);
-  padding: 1rem;
-  overflow: auto;
 }
 
 .preview-surface-fullscreen {

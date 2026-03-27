@@ -64,6 +64,22 @@
               </div>
             }
           }
+
+          @if (isWaitingForAnswer) {
+            <div class="message-row message-row-right message-appear">
+              <div class="message-bubble message-assistant typing-bubble">
+                <div class="message-meta">Assistant</div>
+                <div class="typing-indicator" aria-label="Assistant is typing">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+              <div class="message-side">
+                <div class="chat-avatar assistant-avatar">AI</div>
+              </div>
+            </div>
+          }
         </div>
 
         <form class="composer" (ngSubmit)="addQuestion()">

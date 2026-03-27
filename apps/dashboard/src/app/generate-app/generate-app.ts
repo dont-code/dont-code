@@ -12,7 +12,7 @@ import {ApplicationModel} from '../model/application';
 import {PreviewApp} from '../preview-app/preview-app';
 import {lastValueFrom} from 'rxjs';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
-import {SaveApplicationDialog} from './save-application-dialog';
+import {SaveApplicationDialog} from '../shared/save-application-dialog/save-application-dialog';
 
 @Component({
   selector: 'app-generate-app',

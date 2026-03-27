@@ -65,6 +65,7 @@ export class ListOfApps implements OnInit {
   }
 
   protected linkToGeneratePage() {
-    return '/generate/'+this.repoName();
+    const repoName = this.repoName()??'default';
+    return '/generate/'+repoName;
   }
 }
