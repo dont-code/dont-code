@@ -121,8 +121,15 @@
                       <div class="preview-field-list">
                         @for (field of entity.fields ?? []; track field.name) {
                           <div class="preview-field-row">
-                            <span class="preview-field-name">{{field.name}}</span>
-                            <span class="preview-field-type">{{field.type}}</span>
+                            <span class="preview-field-name">{{ field.name }}</span>
+                            <span class="preview-field-type-wrapper">
+                              @if (field.reference?.referenceType != null) {
+                                <span class="preview-field-reference-badge">
+                                  <mat-icon class="preview-field-reference-icon">link</mat-icon>
+                                </span>
+                              }
+                              <span class="preview-field-type">{{ field.type }}</span>
+                            </span>
                           </div>
                         }
                       </div>
