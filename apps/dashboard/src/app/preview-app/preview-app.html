@@ -4,7 +4,7 @@
   </div>
 
   <div class="preview-header-controls">
-    <div class="preview-toggle-slot">
+    <div class="preview-toggle-slot" [class.preview-toggle-slot-hidden]="isFullscreen()">
       <div class="preview-toggle">
         <button
           type="button"
@@ -43,17 +43,19 @@
     </div>
 
     <div class="preview-switch-slot">
-      <button
-        type="button"
-        class="preview-device-toggle preview-fullscreen-toggle"
-        (click)="toggleFullscreen()"
-        [attr.aria-label]="isFullscreen() ? 'Exit full screen preview' : 'Enter full screen preview'"
-        [attr.title]="isFullscreen() ? 'Exit full screen preview' : 'Enter full screen preview'"
-      >
-        <mat-icon class="preview-device-toggle-icon">
-          {{ isFullscreen() ? 'fullscreen_exit' : 'fullscreen' }}
-        </mat-icon>
-      </button>
+      @if (structureMode === 'preview') {
+        <button
+          type="button"
+          class="preview-device-toggle preview-fullscreen-toggle"
+          (click)="toggleFullscreen()"
+          [attr.aria-label]="isFullscreen() ? 'Exit full screen preview' : 'Enter full screen preview'"
+          [attr.title]="isFullscreen() ? 'Exit full screen preview' : 'Enter full screen preview'"
+        >
+          <mat-icon class="preview-device-toggle-icon">
+            {{ isFullscreen() ? 'fullscreen_exit' : 'fullscreen' }}
+          </mat-icon>
+        </button>
+      }
     </div>
   </div>
 </div>

@@ -109,10 +109,10 @@
     0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
-.chat-card-hidden-fullscreen,
-.preview-card-hidden-fullscreen {
+.chat-card-hidden-fullscreen{
   display: none;
 }
+
 .chat-page-fullscreen {
   position: fixed;
   inset: 0;

@@ -9,7 +9,7 @@
       <p class="hero-warning"><mat-icon>bolt</mat-icon> Beta version, please do not use for sensitive or critical data.</p>
     </header>
 
-    <section class="workspace">
+    <section class="workspace" [class.workspace-fullscreen]="isFullscreen()">
       <section class="chat-card" [class.chat-card-hidden-fullscreen]="isFullscreen()">
         <div class="chat-card-header">
           <div class="chat-participant">
@@ -125,7 +125,7 @@
         </form>
       </section>
 
-      <aside class="preview-card" [class.preview-card-hidden-fullscreen]="isFullscreen()">
+      <aside class="preview-card">
         <app-preview-app [latestGeneratedApp]="latestGeneratedApp()"></app-preview-app>
       </aside>
     </section>

@@ -24,6 +24,10 @@
   min-height: 2.5rem;
 }
 
+.preview-toggle-slot-hidden {
+  display: none;
+}
+
 .preview-toggle {
   display: inline-flex;
   align-items: center;
@@ -367,7 +371,6 @@
 }
 
 .preview-body-fullscreen {
-  position: fixed;
   inset: 0;
   z-index: 900;
   width: 100vw;
