@@ -5,3 +5,11 @@
 .save-dialog-field {
   width: 100%;
 }
+
+.save-status-success {
+  color: #15803d;
+}
+
+.save-status-error {
+  color: #b91c1c;
+}

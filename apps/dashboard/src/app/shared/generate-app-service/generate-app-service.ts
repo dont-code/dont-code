@@ -1,6 +1,7 @@
 import {computed, inject, Injectable, signal} from '@angular/core';
 import {webSocket, WebSocketSubject, WebSocketSubjectConfig} from 'rxjs/webSocket';
 import {ConfigService} from '../config-service/config-service';
+import {ApplicationModel} from '../../model/application';
 
 @Injectable({
   providedIn: 'root',
@@ -101,7 +102,10 @@ export class GenerateAppService {
     }
   }
 
-  async sendMessage (newChange:string): Promise<void> {
+  async sendMessage (newChange:string, lastGeneratedApp?:ApplicationModel): Promise<void> {
+    if( lastGeneratedApp!=null) {
+      newChange = "Here is the current application definition:"+JSON.stringify(lastGeneratedApp)+"\n Based on it can you apply the modifications asked below ?\n"+newChange;
+    }
     return this.openWebSocket().then (socket => socket.next(newChange));
   }
 

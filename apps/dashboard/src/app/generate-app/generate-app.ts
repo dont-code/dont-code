@@ -1,5 +1,16 @@
-import {Component, computed, effect, ElementRef, inject, input, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {HttpClient, HttpResourceRef} from '@angular/common/http';
+import {
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  OnDestroy,
+  OnInit,
+  signal,
+  ViewChild
+} from '@angular/core';
+import {HttpResourceRef} from '@angular/common/http';
 import {RepositoryConfig} from '../model/repository-config';
 import {ConfigService} from '../shared/config-service/config-service';
 import {MatFormField, MatInput, MatLabel, MatSuffix} from '@angular/material/input';
@@ -12,7 +23,11 @@ import {ApplicationModel} from '../model/application';
 import {PreviewApp} from '../preview-app/preview-app';
 import {lastValueFrom} from 'rxjs';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
-import {SaveApplicationDialog} from '../shared/save-application-dialog/save-application-dialog';
+import {
+  SaveApplicationDialog,
+  SaveApplicationDialogReturn
+} from '../shared/save-application-dialog/save-application-dialog';
+import {SavedApplicationLink} from '../shared/saved-application-link/saved-application-link';
 
 @Component({
   selector: 'app-generate-app',
@@ -25,7 +40,8 @@ import {SaveApplicationDialog} from '../shared/save-application-dialog/save-appl
     MatIcon,
     MatSuffix,
     MatDialogModule,
-    PreviewApp
+    PreviewApp,
+    SavedApplicationLink
   ],
   templateUrl: './generate-app.html',
   styleUrl: './generate-app.css',
@@ -42,17 +58,13 @@ export class GenerateApp implements OnInit, OnDestroy {
   config = inject(ConfigService);
   dialog = inject(UserDialogService);
   generator = inject(GenerateAppService);
-  httpClient = inject(HttpClient);
   matDialog = inject(MatDialog);
 
   protected currentQuestion: string = "I'd like to have an application for ...";
   protected isWaitingForAnswer = false;
-  protected saveStatusMessage = '';
-  protected saveStatusType: 'success' | 'error' | '' = '';
+  protected saveStatus = signal<SaveApplicationDialogReturn|undefined> (undefined);
 
   protected toDisconnect: Array<number> = [];
-
-  protected currentProject: DontCodeProject | null = null;
 
   protected latestGeneratedApp = computed<ApplicationModel | undefined>(() => {
     const session = this.dialog.dialogSession();
@@ -101,7 +113,7 @@ export class GenerateApp implements OnInit, OnDestroy {
     this.dialog.addQuestion(question);
     this.isWaitingForAnswer = true;
 
-    this.generator.sendMessage(question).catch((error) => {
+    this.generator.sendMessage(question, this.latestGeneratedApp()).catch((error) => {
       this.isWaitingForAnswer = false;
       this.dialog.addError(error);
     });
@@ -111,30 +123,26 @@ export class GenerateApp implements OnInit, OnDestroy {
   }
 
   async saveApplication(): Promise<void> {
-    this.saveStatusMessage = '';
-    this.saveStatusType = '';
+    this.saveStatus.set(undefined);
 
-    const dialogRef = this.matDialog.open(SaveApplicationDialog, {
-      width: '32rem',
-      disableClose: false,
-      panelClass: 'save-application-dialog-panel',
-      data: {
-        applicationName: this.latestGeneratedApp()?.name ?? ''
-      }
-    });
+    const generatedApp = this.latestGeneratedApp();
+    if (generatedApp == null) {
+      this.saveStatus.set( {outcome: 'error', error: "No application to save."});
+    } else {
 
-    const applicationName = await lastValueFrom(dialogRef.afterClosed());
-    if (!applicationName) {
-      return;
-    }
+      const dialogRef = this.matDialog.open(SaveApplicationDialog, {
+        width: '32rem',
+        disableClose: false,
+        panelClass: 'save-application-dialog-panel',
+        data: {
+          applicationName: generatedApp.name ?? '',
+          applicationDefinition: generatedApp
+        }
+      });
 
-    try {
-      await this.saveProjectDefinition(applicationName);
-      this.saveStatusType = 'success';
-      this.saveStatusMessage = 'Saving was ok.';
-    } catch (error) {
-      this.saveStatusType = 'error';
-      this.saveStatusMessage = `Error while saving: ${error}`;
+      const result = await lastValueFrom(dialogRef.afterClosed()) as SaveApplicationDialogReturn;
+
+      this.saveStatus.set(result);
     }
   }
 
@@ -155,45 +163,4 @@ export class GenerateApp implements OnInit, OnDestroy {
       this.generator.removeReceiver(toRemove);
     }
   }
-
-  async saveProjectDefinition(prjName: string): Promise<void> {
-    const prjApiUrl = this.config.repository.value()?.projectApiUrl;
-    if (prjApiUrl == null) return Promise.reject('No project API url defined.');
-    const generatedApp = this.latestGeneratedApp();
-
-    if (generatedApp == null) {
-      return Promise.reject('No project definition to save');
-    }
-
-    if (prjName) {
-      if (this.currentProject == null) {
-        this.currentProject = new DontCodeProject();
-      }
-      this.currentProject.lastUpdated = new Date();
-      this.currentProject.name = prjName;
-      this.currentProject.content = generatedApp;
-      try {
-        if (this.currentProject._id) {
-          await lastValueFrom(this.httpClient.put(prjApiUrl + '/' + prjName, this.currentProject, {responseType: 'json'}));
-        } else {
-          await lastValueFrom(this.httpClient.post(prjApiUrl, this.currentProject, {responseType: 'json'})).then(
-            (response: any) => {
-              this.currentProject!._id = response._id;
-            });
-        }
-      } catch (error) {
-        return Promise.reject(error);
-      }
-    }
-  }
-
-}
-
-class DontCodeProject {
-  _id?: string;
-  name: string = '';
-  template: boolean = false;
-  description: string = '';
-  lastUpdated: Date | undefined;
-  content?: ApplicationModel;
 }

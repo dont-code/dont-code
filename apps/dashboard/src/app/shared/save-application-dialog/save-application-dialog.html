@@ -5,10 +5,11 @@
     <mat-label>Application name</mat-label>
     <input matInput [(ngModel)]="applicationName" />
   </mat-form-field>
+  <app-saved-application-link [saveResult]="lastSaveResult()"></app-saved-application-link>
 </div>
 
 <div mat-dialog-actions align="end">
-  <button mat-button type="button" (click)="cancel()">Cancel</button>
+  <button mat-button type="button" (click)="close()">Close</button>
   <button mat-flat-button color="primary" type="button" (click)="save()" [disabled]="!applicationName.trim()">
     Save
   </button>

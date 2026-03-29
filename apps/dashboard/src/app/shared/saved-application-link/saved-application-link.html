@@ -1,0 +1,9 @@
+@if (isProjectSavedStatus()) {
+  <div>
+    @if (isProjectSaved()) {
+      <a matButton target="_blank" class="save-status-success" [href]="saveResult()!.appUrl">Application Url</a>
+    } @else if (isProjectError()) {
+      <div class="save-status-error">{{saveResult()!.error}}</div>
+    }
+  </div>
+}
