@@ -10,6 +10,17 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body class="mat-typography">
+<script type="text/javascript">
+  // Storing any query parameters before Anguler removes them
+  const queryString = location.search;
+  let params = new URLSearchParams(queryString)
+  window.dashboardConfig =
+    {
+      action:params.get("action")
+    }
+  // console.log("Request =",window.dontCodeId);
+</script>
+
   <app-root></app-root>
 </body>
 </html>
