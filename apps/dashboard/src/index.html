@@ -13,11 +13,13 @@
 <script type="text/javascript">
   // Storing any query parameters before Anguler removes them
   const queryString = location.search;
-  let params = new URLSearchParams(queryString)
-  window.dashboardConfig =
-    {
-      action:params.get("action")
-    }
+  let params = new URLSearchParams(queryString);
+  if (typeof window !== 'undefined') {
+    window.dashboardConfig =
+      {
+        action:params.get("action")
+      }
+  }
   // console.log("Request =",window.dontCodeId);
 </script>
 

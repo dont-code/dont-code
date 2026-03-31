@@ -12,12 +12,14 @@ export class App {
   protected title = 'dashboard';
 
   constructor() {
-    const config = (window as any).dashboardConfig;
+    if (typeof window !== 'undefined') {
+      const config = (window as any).dashboardConfig;
 
-    const action=config.action;
-    console.log(action);
-    if (action!=null) {
-      this.runAction(action);
+      const action=config.action;
+      //console.log(action);
+      if (action!=null) {
+        this.runAction(action);
+      }
     }
   }
 
