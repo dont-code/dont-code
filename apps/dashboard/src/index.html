@@ -15,9 +15,15 @@
   const queryString = location.search;
   let params = new URLSearchParams(queryString);
   if (typeof window !== 'undefined') {
+    let repoName='default';
+    if (location.pathname?.indexOf('repo/')!==-1) {
+      repoName=location.pathname.substring(location.pathname.indexOf('repo/')+5);
+      if (repoName.endsWith('/')) repoName=repoName.substring(0,repoName.length-1);
+    }
     window.dashboardConfig =
       {
-        action:params.get("action")
+        action:params.get("action"),
+        repo:repoName
       }
   }
   // console.log("Request =",window.dontCodeId);
