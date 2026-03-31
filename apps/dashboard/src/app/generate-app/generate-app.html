@@ -7,6 +7,21 @@
       <h1 class="hero-title">Dont-code Application Generator</h1>
       <div class="hero-subtitle">For {{repoConfig.name}}</div>
       <p class="hero-warning"><mat-icon>bolt</mat-icon> Beta version, please do not use for sensitive or critical data.</p>
+
+      <section class="hero-explanation" aria-label="How to use this application">
+        <h2 class="hero-explanation-title">What this does</h2>
+        <p class="hero-explanation-text">
+          This tool helps you describe the application you want in plain language. The assistant will ask follow-up
+          questions, refine the app definition, and generate a preview as you go.
+        </p>
+        <h3 class="hero-explanation-subtitle">How to use it</h3>
+        <ol class="hero-steps">
+          <li>Describe the app you need in the message box.</li>
+          <li>Answer the assistant’s questions to refine the requirements.</li>
+          <li>Check the preview on the right to validate the generated result.</li>
+          <li>Use <strong>Save application</strong> when you are happy with the outcome.</li>
+        </ol>
+      </section>
     </header>
 
     <section class="workspace" [class.workspace-fullscreen]="isFullscreen()">
