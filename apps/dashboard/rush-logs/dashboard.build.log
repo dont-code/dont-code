@@ -3,16 +3,16 @@ Invoking: ng build
 ✔ Building...
 Browser bundles     
 Initial chunk files  | Names            |  Raw size | Estimated transfer size
-main-Y3X4HGKI.js     | main             | 275.34 kB |                75.23 kB
-styles-SJSRBYVD.css  | styles           |  11.95 kB |                 2.63 kB
+main-6CJ6DQ2K.js     | main             | 605.64 kB |               139.49 kB
+styles-XWGP7WDO.css  | styles           |  12.39 kB |                 2.73 kB
 
-                     | Initial total    | 287.29 kB |                77.85 kB
+                     | Initial total    | 618.03 kB |               142.23 kB
 
 
 Server bundles      
 Initial chunk files  | Names            |  Raw size
+main.server.mjs      | main.server      |   1.04 MB |                        
 server.mjs           | server           | 838.98 kB |                        
-main.server.mjs      | main.server      | 710.91 kB |                        
 polyfills.server.mjs | polyfills.server | 233.25 kB |                        
 chunk-L2MVFUKD.mjs   | -                |   1.32 kB |                        
 chunk-T55IDOPT.mjs   | -                | 976 bytes |                        
@@ -21,8 +21,17 @@ Lazy chunk files     | Names            |  Raw size
 chunk-UW44AX2L.mjs   | xhr2             |  12.14 kB |                        
 chunk-DYF4GLAZ.mjs   | xhr2             |  12.07 kB |                        
 
-Prerendered 3 static routes.
-Application bundle generation complete. [5.981 seconds] - 2026-03-01T09:41:51.960Z
+Prerendered 4 static routes.
+Application bundle generation complete. [7.959 seconds] - 2026-07-05T18:20:52.159Z
+
+▲ [WARNING] bundle initial exceeded maximum budget. Budget 500.00 kB was not met by 118.03 kB with a total of 618.03 kB.
+
+
+▲ [WARNING] src/app/preview-app/preview-app.css exceeded maximum budget. Budget 4.00 kB was not met by 2.01 kB with a total of 6.01 kB.
+
+
+▲ [WARNING] src/app/generate-app/generate-app.css exceeded maximum budget. Budget 4.00 kB was not met by 2.16 kB with a total of 6.16 kB.
+
 
 Output location: /home/gc-garunda/devs/dont-code/github/dont-code/apps/dashboard/dist/dashboard
 

@@ -3,16 +3,16 @@
 {"kind":"O","text":"✔ Building...\n"}
 {"kind":"O","text":"Browser bundles     \n"}
 {"kind":"O","text":"Initial chunk files  | Names            |  Raw size | Estimated transfer size\n"}
-{"kind":"O","text":"main-Y3X4HGKI.js     | main             | 275.34 kB |                75.23 kB\n"}
-{"kind":"O","text":"styles-SJSRBYVD.css  | styles           |  11.95 kB |                 2.63 kB\n"}
+{"kind":"O","text":"main-6CJ6DQ2K.js     | main             | 605.64 kB |               139.49 kB\n"}
+{"kind":"O","text":"styles-XWGP7WDO.css  | styles           |  12.39 kB |                 2.73 kB\n"}
 {"kind":"O","text":"\n"}
-{"kind":"O","text":"                     | Initial total    | 287.29 kB |                77.85 kB\n"}
+{"kind":"O","text":"                     | Initial total    | 618.03 kB |               142.23 kB\n"}
 {"kind":"O","text":"\n"}
 {"kind":"O","text":"\n"}
 {"kind":"O","text":"Server bundles      \n"}
 {"kind":"O","text":"Initial chunk files  | Names            |  Raw size\n"}
+{"kind":"O","text":"main.server.mjs      | main.server      |   1.04 MB |                        \n"}
 {"kind":"O","text":"server.mjs           | server           | 838.98 kB |                        \n"}
-{"kind":"O","text":"main.server.mjs      | main.server      | 710.91 kB |                        \n"}
 {"kind":"O","text":"polyfills.server.mjs | polyfills.server | 233.25 kB |                        \n"}
 {"kind":"O","text":"chunk-L2MVFUKD.mjs   | -                |   1.32 kB |                        \n"}
 {"kind":"O","text":"chunk-T55IDOPT.mjs   | -                | 976 bytes |                        \n"}
@@ -21,8 +21,17 @@
 {"kind":"O","text":"chunk-UW44AX2L.mjs   | xhr2             |  12.14 kB |                        \n"}
 {"kind":"O","text":"chunk-DYF4GLAZ.mjs   | xhr2             |  12.07 kB |                        \n"}
 {"kind":"O","text":"\n"}
-{"kind":"O","text":"Prerendered 3 static routes.\n"}
-{"kind":"O","text":"Application bundle generation complete. [5.981 seconds] - 2026-03-01T09:41:51.960Z\n"}
+{"kind":"O","text":"Prerendered 4 static routes.\n"}
+{"kind":"O","text":"Application bundle generation complete. [7.959 seconds] - 2026-07-05T18:20:52.159Z\n"}
 {"kind":"O","text":"\n"}
+{"kind":"E","text":"\u001b[33m▲ \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1mbundle initial exceeded maximum budget. Budget 500.00 kB was not met by 118.03 kB with a total of 618.03 kB.\u001b[0m\n"}
+{"kind":"E","text":"\n"}
+{"kind":"E","text":"\n"}
+{"kind":"E","text":"\u001b[33m▲ \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1msrc/app/preview-app/preview-app.css exceeded maximum budget. Budget 4.00 kB was not met by 2.01 kB with a total of 6.01 kB.\u001b[0m\n"}
+{"kind":"E","text":"\n"}
+{"kind":"E","text":"\n"}
+{"kind":"E","text":"\u001b[33m▲ \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1msrc/app/generate-app/generate-app.css exceeded maximum budget. Budget 4.00 kB was not met by 2.16 kB with a total of 6.16 kB.\u001b[0m\n"}
+{"kind":"E","text":"\n"}
+{"kind":"E","text":"\n"}
 {"kind":"O","text":"Output location: /home/gc-garunda/devs/dont-code/github/dont-code/apps/dashboard/dist/dashboard\n"}
 {"kind":"O","text":"\n"}

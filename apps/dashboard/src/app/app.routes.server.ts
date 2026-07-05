@@ -11,7 +11,9 @@ export const serverRoutes: ServerRoute[] = [
     async getPrerenderParams () {
       return [
         { repoName:'collinfr'},
-        { repoName:'default'}
+        { repoName:'default'},
+        { repoName:'next-collinfr'},
+        { repoName:'next'}
       ];
     }
   }
