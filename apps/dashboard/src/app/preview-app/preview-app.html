@@ -139,6 +139,54 @@
                   </div>
                 }
               </div>
+
+              @if (workflowsCount() > 0) {
+                <div class="preview-workflows-section">
+                  <div class="preview-workflows-header">
+                    <span class="preview-workflows-title">Workflows</span>
+                    <span class="preview-workflows-count">{{ workflowsCount() }}</span>
+                  </div>
+
+                  <div class="preview-workflow-grid">
+                    @for (workflow of workflows(); track workflow.name) {
+                      <div class="preview-workflow-card">
+                        <div class="preview-workflow-title-row">
+                          <span class="preview-workflow-title">{{ workflow.name }}</span>
+                          <span class="preview-workflow-badge" [class.preview-workflow-badge-carousel]="workflow.workflow.workflow === 'carousel'">
+                            {{ workflow.workflow.workflow }}
+                          </span>
+                        </div>
+
+                        <div class="preview-workflow-row">
+                          <span class="preview-workflow-label">Entity</span>
+                          <span class="preview-workflow-value">{{ workflow.workflow.entity }}</span>
+                        </div>
+
+                        @if (workflow.workflow.data?.sort) {
+                          <div class="preview-workflow-row">
+                            <span class="preview-workflow-label">Sort</span>
+                            <span class="preview-workflow-value">{{ sortLabel(workflow.workflow.data?.sort) }}</span>
+                          </div>
+                        }
+
+                        @if (workflow.workflow.display?.fields) {
+                          <div class="preview-workflow-row">
+                            <span class="preview-workflow-label">Display</span>
+                            <span class="preview-workflow-value">{{ displayLabel(workflow.workflow.display) }}</span>
+                          </div>
+                        }
+
+                        @if (workflow.workflow.selection) {
+                          <div class="preview-workflow-row">
+                            <span class="preview-workflow-label">Selection</span>
+                            <span class="preview-workflow-value">{{ selectionLabel(workflow.workflow.selection) }}</span>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
             </div>
           </div>
         }
