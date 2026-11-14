@@ -664,6 +664,45 @@ Optimus UI side (the go/no-go for D11):
 - Note: published `xt-type` is 0.12.0 and `xt-components` is 1.3.0 (1.4.1 / 0.12.1 are still on
   `next`), so they must be published properly as part of M0.1.
 
+##### M0.0 outcome (2026-11-14) — **GO on both axes**
+
+Proven on `ng-xtend` branch `Upgrade-22.2` (109 files: 29 `package.json`, 80 sources).
+
+Resolved stack: `@angular/{core,common,forms,animations,platform-browser,platform-browser-dynamic,router,compiler,compiler-cli}`
+22.2.6, `@angular/{cli,build,cdk,material}` 22.2.7, `ng-packagr` 22.2.6,
+`@angular-architects/native-federation` 22.2.5, `@ngrx/signals` 22.0.1, `typescript` 6.0.3,
+`@openng/optimus-ui*` 2.0.2, `primeicons` 7.0.0.
+
+- **Angular**: all 17 workspaces build with the federation builder on `@angular/build` only;
+  `@angular-devkit/build-angular` is gone from devDependencies. `rush build` = 2 clean + 13
+  ng-packagr warnings (same class as 21); `rush test` = 15 + 1 warning green in 1m32s.
+- **Optimus**: all 30 PrimeNG modules (156 import sites) migrated to `@openng/optimus-ui/*`; the
+  host renders with `provideOptimus(...)` and `@openng/optimus-ui-themes/aura`.
+- **Runtime**: built host served over plain HTTP with `intl`, `finance` and `workflow-sample`
+  remotes, loaded in headless Chromium for the `Simple` and `Workflow` projects. All remotes
+  register, the entity table/toolbar/buttons render, and the console has no `strictVersion`,
+  duplicate-Angular or NG error, and no 4xx asset request. The host `remoteEntry.json` shares
+  `@angular/core` 22.2.6 and Optimus 2.0.2; every remote reports identical versions for every
+  shared package it publishes.
+
+Findings that M0.1/M0.3 must keep:
+
+- Angular 22 requires TypeScript `>=6.0.0 <6.1.0` → pin **6.0.3**; registry `latest` (7.0.2) is
+  incompatible.
+- With `preserveSymlinks: true` + pnpm, transitive deps are not hoisted: every federated workspace
+  needs explicit `@softarc/native-federation`, `@softarc/native-federation-orchestrator` and
+  `@openng/optimus-ui-{styles,styled,utils,motion}` devDependencies, or esbuild cannot resolve their
+  imports (`@softarc/native-federation/domain`, `@openng/optimus-ui-styles/*`).
+- Enable `features.denseExternals: true` and patch **only the runtime packages**
+  (`@angular/{animations,common,core,forms,platform-browser,router}`) with
+  `includeSecondaries: { keepAll: true }`. A blanket `.patch(['@angular/*'])` also matches
+  `@angular/cdk`, whose `schematics` entries pull Node built-ins into the browser bundle and fail
+  the build.
+- `workflow-sample-plugin` publishes `dc-workflow` 1.4.1 itself, matching the host — the R2
+  "remote workflow bundles its own `dc-workflow`" case loads correctly at runtime.
+- Dashboard test runner: `@angular-devkit/build-angular` 22.2.7 still peers Karma, so M0.2 keeps
+  Karma/Jasmine; migrating the dashboard to Vitest is not part of Track 0.
+
 #### M0.1 — `ng-xtend` → Angular 22 + Optimus UI, libs republished
 
 Framework:
