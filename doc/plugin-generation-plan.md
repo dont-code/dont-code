@@ -765,7 +765,8 @@ UI kit (D11), applied to host, libs, plugins and both templates:
 
 #### M0.2 — `dont-code` dashboard → Angular 22
 
-- `@angular/*` 22.2.6, `@angular/build`, `@angular/cli`, `@angular/compiler-cli`, TypeScript 5.9.
+- `@angular/*` 22.2.6, `@angular/build`, `@angular/cli`, `@angular/compiler-cli` 22.2.7/22.2.6,
+  `@angular/{material,cdk}` 22.2.7, TypeScript 6.0.3.
 - Replace the drifting `xt-type ^0.10.4` with the M0.1 release; align `@angular/material`/`cdk`.
 - **No UI-kit change here:** the dashboard keeps Angular Material + Tailwind; it has no PrimeNG
   dependency, so it is unaffected by D11.
@@ -773,6 +774,23 @@ UI kit (D11), applied to host, libs, plugins and both templates:
 - Run the M0.0 test-runner decision here if it applies.
 - **Accept:** dashboard builds, routes deep-link, designer opens, saved apps still produce a
   loadable `applicationHostUrl` config.
+
+##### M0.2 status (2026-11-14) — done, local commit only
+
+- `apps/dashboard/package.json` pins `@angular/{core,common,compiler,forms,platform-browser,
+  platform-server,router}` 22.2.6, `@angular/{cdk,material,build,cli,ssr}` 22.2.7,
+  `@angular/compiler-cli` 22.2.6, `typescript` 6.0.3 and `xt-type` 0.12.1 (exact, from `next`;
+  `xt-type` is framework-agnostic, so the Angular 21 build is valid until 0.13.0 is published).
+- `npx ng build` is clean (no warnings): NG8107 in `preview-app-window.html:77` fixed and the
+  production budgets adjusted to the real bundle size (`initial` 700 kB / 1.2 MB, component styles
+  8 kB / 12 kB; previously 500 kB/1 MB and 4 kB/8 kB).
+- `ng test --browsers=ChromeHeadless`: **15/15 SUCCESS** (Karma/Jasmine kept). The three stale
+  scaffold specs were fixed: `App` now guards a missing `window.dashboardConfig`, and the
+  `App`/`AppPanel` specs set the required inputs and provide a router.
+- Runtime smoke test (`ng serve` :4300 + headless Chromium): `/`, `/repo/default` and
+  `/generate/default` all render; the app list loads from the live demo API and the designer page
+  renders. Zero console errors.
+- Remaining for M0.4: move `xt-type` to the 0.13.0 M0.1 release line once it is published.
 
 #### M0.3 — Runtime validation of host + plugins + templates
 
