@@ -733,6 +733,36 @@ UI kit (D11), applied to host, libs, plugins and both templates:
   report `^22` peers; zero `primeng` references remain (`grep -r primeng` is empty apart from the
   migration note); Optimus version is exact and vendored.
 
+##### M0.1 status (2026-11-14) — code done, publish pending registry auth
+
+- All workspaces carry exact framework pins (`@angular/*` 22.2.6, CLI/build/cdk 22.2.7,
+  `ng-packagr` 22.2.6, `typescript` 6.0.3, `@openng/optimus-ui*` 2.0.2,
+  `@angular-architects/native-federation` 22.2.5) with `ensureConsistentVersions` on.
+  `xt-components` publishes `@angular/*` peers `^22.0.0` and `@openng/optimus-ui` `^2.0.2`.
+- `grep -r 'primeng\|primeuix'` over `apps libs plugins docs common` is empty. Eight stale
+  per-package `package-lock.json` files (Angular 18/20 era, unused by Rush or `publish.yml`) were
+  removed.
+- **Publish is the only open item**: `xt-components` 1.4.1 and `xt-type` 0.12.1 already exist on
+  `next` (built for Angular 21); `latest` is 1.3.0 / 0.12.0. The release line must move
+  (release-please on merge, or a manual bump to 1.5.0 / 0.13.0) before publishing.
+- Runbook once authenticated (`publish.yml` with `next=true`, or `rush-pnpm publish --tag next`):
+  1. `rush build-deploy-next`; 2. publish `xt-type` + `xt-components` to `next`; 3. point the
+  dashboard at the `@next` versions for M0.2; 4. promote to `latest` only together with the host
+  and every plugin (M0.4 rule).
+- Optimus tarball pins for `manifest.json` (SHA-256 of `npm pack @openng/<pkg>@2.0.2`):
+
+  | package | sha256 |
+  | --- | --- |
+  | `@openng/optimus-ui` | `e93f9d0f227c26b651d60050b7b6a90a5ae560876fd3b569896a32497bcd9568` |
+  | `@openng/optimus-ui-themes` | `8f091d9c0486cafed31a249f2a34b1de6f49bacbd3c9705137f872b18a8b3912` |
+  | `@openng/optimus-ui-styles` | `894d5d70bca9f4dbb2d694bdac9026078f7cdeb3f4cc55e119bad1947b43fd58` |
+  | `@openng/optimus-ui-utils` | `813476db04b6fa592a11aa8a88bc3a830b30657e58c93fb322187453cdec4e1d` |
+  | `@openng/optimus-ui-styled` | `a275f2063df18bd063c66cf08031503a281f1ec8d596f62199aadbaea2abefd0` |
+  | `@openng/optimus-ui-motion` | `c6d4613e0978e9ab96d5c79e23c5c573b1546c01fb3dfa6123076c5137f572b9` |
+- **Open decision**: vendoring wiring — committed `file:` tarballs vs a private mirror. Today the
+  install is integrity-pinned only through `pnpm-lock.yaml` (sha512), so tampering/outage fails the
+  build but there is no offline copy.
+
 #### M0.2 — `dont-code` dashboard → Angular 22
 
 - `@angular/*` 22.2.6, `@angular/build`, `@angular/cli`, `@angular/compiler-cli`, TypeScript 5.9.
