@@ -46,3 +46,9 @@ There are several ways to develop and deploy an application with Dont-code:
   - Large token cost, as each user will consume tokens
   - No limits on the features you can add
 
+## Self-hosting and plugin generation
+
+See [plugin-generation-plan.md](plugin-generation-plan.md) for the plan covering the installable
+platform (YunoHost and Docker distributions), dashboard visibility of generated apps, and the
+optional development add-on where OpenCode generates new plugins and workflows.
+
