@@ -38,7 +38,7 @@
     "rxjs": "~7.8.0",
     "tailwindcss": "^4.2.1",
     "tslib": "^2.3.0",
-    "xt-type": "0.12.1"
+    "xt-type": "0.13.0"
   },
   "devDependencies": {
     "@angular/build": "22.2.7",
