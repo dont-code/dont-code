@@ -859,8 +859,12 @@ UI kit (D11), applied to host, libs, plugins and both templates:
 > no pin/version comparison, no clean-VM unpack until the tarball exists. The remaining M1.x
 > milestones (config, proxy, auth, Mongo, channels) follow in Phase 2 (§10).
 >
-> Open point: the NG0912 fix is on `ng-xtend/fix-federation` (`e63148d`), not `main`. Build the
-> host + plugins from that ref (or merge it first) and record the source ref in `manifest.json`.
+> Resolved: the NG0912 fix was merged into `ng-xtend/main` via `266b2ba` (PR #106). The workflow
+> builds from that ref by default and records the resolved source ref/SHA in `manifest.json`.
+>
+> Implemented (2026-11-20): `.github/workflows/release.yml` and `scripts/release/*`. A local dry run
+> assembled a 907-file bundle with `manifest.json`, `SHA256SUMS` and neutralized configs; the
+> clean-VM unpack and `doctor` acceptance remain in Phase 3.
 
 - New `release` workflow in `dont-code`: build the dashboard static app (rename
   `index.csr.html` → `index.html`), build the two Quarkus uber-jars, take the pinned `ng-xtend`

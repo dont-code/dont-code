@@ -1,0 +1,211 @@
+name: Release bundle from sources
+
+# Builds one deployment-agnostic tarball and attaches it to a GitHub release.
+# Nothing is deployed here: no hostnames, credentials, Mongo URI or nginx config
+# is read or rendered by this workflow.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version, e.g. 0.1.0'
+        required: true
+        type: string
+      core_ref:
+        description: 'dont-code/core ref'
+        required: true
+        default: 'main'
+        type: string
+      common_ref:
+        description: 'dont-code/common-quarkus-mongo ref'
+        required: true
+        default: 'main'
+        type: string
+      project_services_ref:
+        description: 'dont-code/project-services ref'
+        required: true
+        default: 'main'
+        type: string
+      data_services_ref:
+        description: 'dont-code/data-services ref'
+        required: true
+        default: 'main'
+        type: string
+      ng_xtend_ref:
+        description: 'dont-code/ng-xtend ref (must include the federation fix)'
+        required: true
+        default: 'main'
+        type: string
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout dont-code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Resolve version
+        run: |
+          VERSION="${{ inputs.version }}"
+          if [ -z "$VERSION" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Checkout core
+        uses: actions/checkout@v4
+        with:
+          repository: dont-code/core
+          ref: ${{ inputs.core_ref || 'main' }}
+          path: source/core
+          fetch-depth: 1
+
+      - name: Checkout common-quarkus-mongo
+        uses: actions/checkout@v4
+        with:
+          repository: dont-code/common-quarkus-mongo
+          ref: ${{ inputs.common_ref || 'main' }}
+          path: source/common-quarkus-mongo
+          fetch-depth: 1
+
+      - name: Checkout project-services
+        uses: actions/checkout@v4
+        with:
+          repository: dont-code/project-services
+          ref: ${{ inputs.project_services_ref || 'main' }}
+          path: source/project-services
+          fetch-depth: 1
+
+      - name: Checkout data-services
+        uses: actions/checkout@v4
+        with:
+          repository: dont-code/data-services
+          ref: ${{ inputs.data_services_ref || 'main' }}
+          path: source/data-services
+          fetch-depth: 1
+
+      - name: Checkout ng-xtend
+        uses: actions/checkout@v4
+        with:
+          repository: dont-code/ng-xtend
+          ref: ${{ inputs.ng_xtend_ref || 'main' }}
+          path: source/ng-xtend
+          fetch-depth: 1
+
+      - name: Setup Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+          cache: maven
+          cache-dependency-path: |
+            source/core/java/pom.xml
+            source/common-quarkus-mongo/pom.xml
+            source/project-services/pom.xml
+            source/data-services/pom.xml
+
+      - name: Neutralize service configuration defaults
+        run: |
+          node scripts/release/neutralize-service-properties.mjs \
+            source/project-services/src/main/resources/application.properties \
+            source/data-services/src/main/resources/application.properties
+
+      - name: Build Java base libraries
+        run: |
+          mvn -B -ntp -f source/core/java/pom.xml install \
+            -DskipTests -Dgpg.skip=true -Dmaven.javadoc.skip=true
+          mvn -B -ntp -f source/common-quarkus-mongo/pom.xml install \
+            -DskipTests -Dgpg.skip=true -Dmaven.javadoc.skip=true
+
+      - name: Build Quarkus services
+        run: |
+          mvn -B -ntp -f source/project-services/pom.xml package \
+            -DskipTests -Dgpg.skip=true
+          mkdir -p source/data-services/scratch
+          mvn -B -ntp -f source/data-services/pom.xml package \
+            -DskipTests -Dgpg.skip=true
+
+      - name: Build dashboard
+        run: |
+          node common/scripts/install-run-rush.js install
+          npm --prefix apps/dashboard run build -- --configuration=production --base-href=/
+
+      - name: Build ng-xtend host and plugins
+        working-directory: source/ng-xtend
+        run: |
+          node common/scripts/install-run-rush.js install
+          node common/scripts/install-run-rush.js build-deploy-latest
+
+      - name: Assemble release bundle
+        env:
+          SOURCE_DONT_CODE_REF: ${{ github.ref_name }}
+          SOURCE_CORE_REF: ${{ inputs.core_ref || 'main' }}
+          SOURCE_COMMON_REF: ${{ inputs.common_ref || 'main' }}
+          SOURCE_PROJECT_SERVICES_REF: ${{ inputs.project_services_ref || 'main' }}
+          SOURCE_DATA_SERVICES_REF: ${{ inputs.data_services_ref || 'main' }}
+          SOURCE_NG_XTEND_REF: ${{ inputs.ng_xtend_ref || 'main' }}
+          NODE_VERSION_PIN: '24'
+          JAVA_VERSION_PIN: '25'
+          QUARKUS_VERSION: '3.38.0'
+          MONGODB_VERSION_PIN: '7.x'
+        run: |
+          export SOURCE_DONT_CODE_SHA=$(git rev-parse HEAD)
+          export SOURCE_CORE_SHA=$(git -C source/core rev-parse HEAD)
+          export SOURCE_COMMON_SHA=$(git -C source/common-quarkus-mongo rev-parse HEAD)
+          export SOURCE_PROJECT_SERVICES_SHA=$(git -C source/project-services rev-parse HEAD)
+          export SOURCE_DATA_SERVICES_SHA=$(git -C source/data-services rev-parse HEAD)
+          export SOURCE_NG_XTEND_SHA=$(git -C source/ng-xtend rev-parse HEAD)
+
+          node scripts/release/assemble-bundle.mjs \
+            --version "$VERSION" \
+            --repo "$PWD" \
+            --ng-xtend "$PWD/source/ng-xtend" \
+            --ng-xtend-dist "$PWD/source/ng-xtend/dist/latest" \
+            --dashboard-dist "$PWD/apps/dashboard/dist/dashboard/browser" \
+            --project-jar "$PWD/source/project-services/target/project-services-runner.jar" \
+            --data-jar "$PWD/source/data-services/target/data-services-runner.jar" \
+            --project-pom "$PWD/source/project-services/pom.xml" \
+            --data-pom "$PWD/source/data-services/pom.xml" \
+            --cli "$PWD/scripts/release/dont-code" \
+            --output-dir "$PWD/dist/release" \
+            --tarball "$PWD/dist/release/dont-code-$VERSION.tar.gz"
+
+      - name: Upload bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dont-code-${{ env.VERSION }}
+          path: |
+            dist/release/dont-code-${{ env.VERSION }}.tar.gz
+            dist/release/dont-code-${{ env.VERSION }}.tar.gz.sha256
+          if-no-files-found: error
+
+      - name: Publish GitHub release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="v$VERSION"
+          TARBALL="dist/release/dont-code-$VERSION.tar.gz"
+          CHECKSUM="$TARBALL.sha256"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$TARBALL" "$CHECKSUM" --clobber
+          else
+            gh release create "$TAG" "$TARBALL" "$CHECKSUM" \
+              --title "dont-code $VERSION" \
+              --target "$GITHUB_SHA" \
+              --generate-notes
+          fi
