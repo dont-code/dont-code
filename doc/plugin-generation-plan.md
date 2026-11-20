@@ -2,6 +2,8 @@
 
 Status: draft / awaiting decisions
 Date: 2026-11-14
+Current focus (2026-11-20): Phase 1 — complete release bundle generation (§10). All verification
+gates are deferred until an installable bundle exists.
 Repos in scope: `dont-code` (dashboard + release workflow), `project-services`, `data-services`,
 `ng-xtend` (host + plugins + templates), new `plugin-worker`, and two distribution channels
 (`dont-code_ynh` YunoHost package, `dont-code-docker` compose bundle).
@@ -804,7 +806,7 @@ UI kit (D11), applied to host, libs, plugins and both templates:
 - **Accept:** zero version warnings, all plugins render, `ng test` green in host and samples, and a
   screenshot diff of the main app screens shows no unintended UI change.
 
-##### M0.3 status (2026-11-16) — done, working tree only
+##### M0.3 status (2026-11-16) — done, committed on `Upgrade-22.2`
 
 - Release builds: `rush build-deploy-next` and `rush build-deploy-latest` both complete **16/16,
   EXIT=0**, with no “will not resolve” warnings.
@@ -836,6 +838,10 @@ UI kit (D11), applied to host, libs, plugins and both templates:
 
 #### M0.4 — Baseline recorded + deploy discipline
 
+> **Deferred to Phase 3 (§10):** pin enforcement and `doctor` checks run only after the release
+> bundle exists and is installable. The `manifest.json` assembled in Phase 1 records the versions
+> actually used; it does not enforce them yet.
+
 - Write the resolved versions into `manifest.json` (§4.5) and §4.10; `doctor` compares them.
 - Record the vendored `@openng/optimus-ui*` tarball version + SHA-256 in `manifest.json`, and make
   the release build fail if the resolved package differs from the pinned tarball.
@@ -848,6 +854,14 @@ UI kit (D11), applied to host, libs, plugins and both templates:
 ### Track 1 — installable base platform (G1, G2)
 
 #### M1.0 — Release bundle workflow (deployment-agnostic)
+
+> **Phase 1 — do this first.** Bundle generation precedes every verification gate: no `doctor`,
+> no pin/version comparison, no clean-VM unpack until the tarball exists. The remaining M1.x
+> milestones (config, proxy, auth, Mongo, channels) follow in Phase 2 (§10).
+>
+> Open point: the NG0912 fix is on `ng-xtend/fix-federation` (`e63148d`), not `main`. Build the
+> host + plugins from that ref (or merge it first) and record the source ref in `manifest.json`.
+
 - New `release` workflow in `dont-code`: build the dashboard static app (rename
   `index.csr.html` → `index.html`), build the two Quarkus uber-jars, take the pinned `ng-xtend`
   host + plugins, and assemble `dont-code-<version>/` with `manifest.json` + `SHA256SUMS` (§4.5).
@@ -1090,12 +1104,19 @@ UI kit (D11), applied to host, libs, plugins and both templates:
 ## 10. Suggested order
 
 ```
-Track 0  M0.0 spike (Angular 22 + Optimus UI) ─ M0.1 ng-xtend 22 + Optimus, republish libs
-         ─ M0.2 dashboard 22 ─ M0.3 runtime validation ─ M0.4 exact pins/manifest   (blocks M3.0, not M1.0)
+Track 0  M0.0 spike (Angular 22 + Optimus UI) ─ M0.1 ng-xtend 22 + Optimus ─ M0.2 dashboard 22
+         ─ M0.3 runtime validation
+         (M0.4 pins/doctor checks deferred to Phase 3, after an installable bundle exists)
                         │
-Track 1  M1.0 release bundle ─ M1.1 config ─ M1.2 proxy ─ M1.3 auth
-         ─ M1.4 mongo (external | bundled) ─ M1.5 YunoHost ─ M1.6 Docker
-         ─ M1.7 lifecycle/docs
+Phase 1  M1.0 release bundle: dashboard + both Java services + ng-xtend host/plugins
+         → GitHub release asset (deployment-agnostic, manifest + SHA256SUMS)
+                        │
+Phase 2  M1.1 config ─ M1.2 proxy ─ M1.3 auth ─ M1.4 Mongo
+         ─ M1.5 YunoHost ─ M1.6 Docker ─ M1.7 lifecycle/docs
+                        │
+Phase 3  M0.4 pin enforcement + doctor + promotion discipline
+         ─ M0.3 screenshot diff / NG01354 recheck
+         ─ M1.0 clean-VM unpack + both-channel acceptance
                         │
 Track 2  M2.1 save/upsert ─ M2.2 auto-save ─ M2.3 config lint
          ─ M2.4 provider ─ M2.5 catalog ─ M2.6 E2E gate
@@ -1105,7 +1126,10 @@ Track 3  M3.0 template+prompt (hand-prove one plugin)   ← de-risks versions & 
          ─ M3.4 add-on packaging ─ M3.5 safety/ops
 ```
 
-Rationale: Track 0 removes the version migration from the critical path of the generator; Track 1
-gives a real install to test against; Track 2 makes apps visible and the designer configurable;
-Track 3 builds the generator on a platform that already has a capability catalog, a plugin
-namespace and an approval surface.
+Rationale: produce something installable first — Phase 1 is one deployment-agnostic bundle with
+host + dashboard + Java services, Phase 2 makes it installable through both channels. Track 0
+removes the version migration from the generator's critical path; the checks previously in M0.4
+and the acceptance tests are grouped in Phase 3, where they have a real bundle to validate.
+Verifying pins before any bundle existed produced checks with no deployable target. Track 2 makes
+apps visible and the designer configurable; Track 3 builds the generator on a platform that
+already has a capability catalog, a plugin namespace and an approval surface.
