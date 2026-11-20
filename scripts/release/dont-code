@@ -1,0 +1,52 @@
+#!/bin/sh
+# Deployment-agnostic bundle utility. Environment-specific commands are added
+# by the install channels; this base version only reports bundle identity.
+set -eu
+
+BUNDLE_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+VERSION=$(cat "$BUNDLE_ROOT/VERSION" 2>/dev/null || echo unknown)
+
+usage() {
+  cat <<EOF
+dont-code $VERSION
+
+Usage:
+  dont-code version              Print the bundle version
+  dont-code status               Print bundle identity and installed components
+  dont-code configure            Reserved for the install channel (Phase 2)
+  dont-code doctor               Reserved for bundle checks (Phase 3)
+  dont-code backup               Reserved for the install channel (Phase 2)
+  dont-code restore              Reserved for the install channel (Phase 2)
+EOF
+}
+
+case "${1:-help}" in
+  version)
+    printf '%s\n' "$VERSION"
+    ;;
+  status)
+    printf 'bundle: %s\n' "dont-code-$VERSION"
+    printf 'version: %s\n' "$VERSION"
+    printf 'root: %s\n' "$BUNDLE_ROOT"
+    for jar in services/project-services.jar services/data-services.jar; do
+      if [ -f "$BUNDLE_ROOT/$jar" ]; then
+        printf 'present: %s\n' "$jar"
+      else
+        printf 'missing: %s\n' "$jar"
+        exit 1
+      fi
+    done
+    ;;
+  configure|doctor|backup|restore)
+    printf '%s is provided by the install channel and is not enabled in the base bundle.\n' "$1" >&2
+    exit 2
+    ;;
+  help|-h|--help)
+    usage
+    ;;
+  *)
+    printf 'Unknown command: %s\n\n' "$1" >&2
+    usage >&2
+    exit 2
+    ;;
+esac
