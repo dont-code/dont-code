@@ -76,25 +76,59 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
           mkdir -p source/binaries
 
-          PROJECT_RELEASE=$(gh release view --repo dont-code/project-services \
-            --json tagName,targetCommitish)
-          DATA_RELEASE=$(gh release view --repo dont-code/data-services \
-            --json tagName,targetCommitish)
-          PROJECT_TAG=$(printf '%s' "$PROJECT_RELEASE" | jq -r .tagName)
-          PROJECT_SHA=$(printf '%s' "$PROJECT_RELEASE" | jq -r .targetCommitish)
-          DATA_TAG=$(printf '%s' "$DATA_RELEASE" | jq -r .tagName)
-          DATA_SHA=$(printf '%s' "$DATA_RELEASE" | jq -r .targetCommitish)
+          resolve_release() {
+            local repo="$1"
+            local channel="$2"
+            local tag
+
+            if [ "$channel" = "next" ]; then
+              # Next bundles use the newest published Java prerelease tagged as next.
+              tag=$(gh release list --repo "$repo" --limit 30 \
+                --json tagName,isDraft,isPrerelease \
+                --jq '[.[] | select(.isDraft == false and (.tagName | test("next"; "i")))][0].tagName // empty')
+              if [ -z "$tag" ]; then
+                echo "No published next Java release found in $repo (expected a tag containing 'next')" >&2
+                exit 1
+              fi
+            else
+              # Latest bundles use the newest published non-next Java release.
+              tag=$(gh release list --repo "$repo" --limit 30 \
+                --json tagName,isDraft,isPrerelease \
+                --jq '[.[] | select(.isDraft == false and (.tagName | test("next"; "i") | not))][0].tagName // empty')
+              if [ -z "$tag" ]; then
+                echo "No published non-next Java release found in $repo" >&2
+                exit 1
+              fi
+            fi
+
+            local sha
+            sha=$(gh api "repos/$repo/commits/$tag" --jq .sha)
+            printf '%s\n%s\n' "$tag" "$sha"
+          }
+
+          {
+            read -r PROJECT_TAG
+            read -r PROJECT_SHA
+          } < <(resolve_release dont-code/project-services "$CHANNEL")
+          {
+            read -r DATA_TAG
+            read -r DATA_SHA
+          } < <(resolve_release dont-code/data-services "$CHANNEL")
+
+          echo "Using project-services release $PROJECT_TAG ($PROJECT_SHA) for channel $CHANNEL"
+          echo "Using data-services release $DATA_TAG ($DATA_SHA) for channel $CHANNEL"
 
           echo "PROJECT_TAG=$PROJECT_TAG" >> "$GITHUB_ENV"
           echo "PROJECT_SHA=$PROJECT_SHA" >> "$GITHUB_ENV"
           echo "DATA_TAG=$DATA_TAG" >> "$GITHUB_ENV"
           echo "DATA_SHA=$DATA_SHA" >> "$GITHUB_ENV"
 
-          gh release download --repo dont-code/project-services \
+          gh release download "$PROJECT_TAG" --repo dont-code/project-services \
             --pattern 'project-services-runner.jar' --dir source/binaries --clobber
-          gh release download --repo dont-code/data-services \
+          gh release download "$DATA_TAG" --repo dont-code/data-services \
             --pattern 'data-services-runner.jar' --dir source/binaries --clobber
 
       - name: Prepare ng-xtend app shells for npm libraries
