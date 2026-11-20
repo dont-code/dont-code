@@ -1,0 +1,183 @@
+name: Release bundle from binaries
+
+# Builds a deployment-agnostic tarball using already-published Java release
+# assets and npm-published ng-xtend libraries. Only the dashboard and the
+# ng-xtend app shells (host + plugins) are compiled here. Nothing is deployed.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version, e.g. 0.1.0 or 0.1.0-next'
+        required: true
+        type: string
+      channel:
+        description: 'npm dist-tag for ng-xtend libraries'
+        required: true
+        default: 'latest'
+        type: choice
+        options:
+          - latest
+          - next
+      ng_xtend_ref:
+        description: 'ng-xtend ref containing the app shells'
+        required: true
+        default: 'main'
+        type: string
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout dont-code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Resolve version and channel
+        run: |
+          VERSION="${{ inputs.version }}"
+          if [ -z "$VERSION" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          fi
+          CHANNEL="${{ inputs.channel }}"
+          if [ -z "$CHANNEL" ]; then
+            case "$GITHUB_REF_NAME" in
+              *-next) CHANNEL='next' ;;
+              *) CHANNEL='latest' ;;
+            esac
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "CHANNEL=$CHANNEL" >> "$GITHUB_ENV"
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Checkout ng-xtend
+        uses: actions/checkout@v4
+        with:
+          repository: dont-code/ng-xtend
+          ref: ${{ inputs.ng_xtend_ref || 'main' }}
+          path: source/ng-xtend
+          fetch-depth: 1
+
+      - name: Download Java service release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p source/binaries
+
+          PROJECT_RELEASE=$(gh release view --repo dont-code/project-services \
+            --json tagName,targetCommitish)
+          DATA_RELEASE=$(gh release view --repo dont-code/data-services \
+            --json tagName,targetCommitish)
+          PROJECT_TAG=$(printf '%s' "$PROJECT_RELEASE" | jq -r .tagName)
+          PROJECT_SHA=$(printf '%s' "$PROJECT_RELEASE" | jq -r .targetCommitish)
+          DATA_TAG=$(printf '%s' "$DATA_RELEASE" | jq -r .tagName)
+          DATA_SHA=$(printf '%s' "$DATA_RELEASE" | jq -r .targetCommitish)
+
+          echo "PROJECT_TAG=$PROJECT_TAG" >> "$GITHUB_ENV"
+          echo "PROJECT_SHA=$PROJECT_SHA" >> "$GITHUB_ENV"
+          echo "DATA_TAG=$DATA_TAG" >> "$GITHUB_ENV"
+          echo "DATA_SHA=$DATA_SHA" >> "$GITHUB_ENV"
+
+          gh release download --repo dont-code/project-services \
+            --pattern 'project-services-runner.jar' --dir source/binaries --clobber
+          gh release download --repo dont-code/data-services \
+            --pattern 'data-services-runner.jar' --dir source/binaries --clobber
+
+      - name: Prepare ng-xtend app shells for npm libraries
+        run: |
+          node scripts/release/prepare-ng-xtend-binaries.mjs \
+            --ng-xtend "$PWD/source/ng-xtend" \
+            --tag "$CHANNEL" \
+            --mode prepare \
+            --versions-out "$RUNNER_TEMP/ng-xtend-versions.json"
+
+      - name: Install ng-xtend app dependencies from npm
+        working-directory: source/ng-xtend
+        run: node common/scripts/install-run-rush.js update
+
+      - name: Build ng-xtend app shells
+        run: |
+          node scripts/release/prepare-ng-xtend-binaries.mjs \
+            --ng-xtend "$PWD/source/ng-xtend" \
+            --tag "$CHANNEL" \
+            --mode build \
+            --versions-out "$RUNNER_TEMP/ng-xtend-versions.json"
+
+      - name: Build dashboard
+        run: |
+          node common/scripts/install-run-rush.js install
+          npm --prefix apps/dashboard run build -- --configuration=production --base-href=/
+
+      - name: Assemble release bundle
+        env:
+          SOURCE_DONT_CODE_REF: ${{ github.ref_name }}
+          SOURCE_CORE_REF: 'not-used'
+          SOURCE_CORE_SHA: 'not-used'
+          SOURCE_COMMON_REF: 'not-used'
+          SOURCE_COMMON_SHA: 'not-used'
+          NODE_VERSION_PIN: '24'
+          JAVA_VERSION_PIN: 'not-used'
+          QUARKUS_VERSION: 'from-release-assets'
+          MONGODB_VERSION_PIN: '7.x'
+        run: |
+          export SOURCE_DONT_CODE_SHA=$(git rev-parse HEAD)
+          export SOURCE_PROJECT_SERVICES_REF="$PROJECT_TAG"
+          export SOURCE_PROJECT_SERVICES_SHA="$PROJECT_SHA"
+          export SOURCE_DATA_SERVICES_REF="$DATA_TAG"
+          export SOURCE_DATA_SERVICES_SHA="$DATA_SHA"
+          export SOURCE_NG_XTEND_REF="${{ inputs.ng_xtend_ref || 'main' }}"
+          export SOURCE_NG_XTEND_SHA=$(git -C source/ng-xtend rev-parse HEAD)
+
+          node scripts/release/assemble-bundle.mjs \
+            --version "$VERSION" \
+            --repo "$PWD" \
+            --ng-xtend "$PWD/source/ng-xtend" \
+            --ng-xtend-dist "$PWD/source/ng-xtend/dist/latest" \
+            --ng-xtend-versions "$RUNNER_TEMP/ng-xtend-versions.json" \
+            --dashboard-dist "$PWD/apps/dashboard/dist/dashboard/browser" \
+            --project-jar "$PWD/source/binaries/project-services-runner.jar" \
+            --data-jar "$PWD/source/binaries/data-services-runner.jar" \
+            --project-services-version "$PROJECT_TAG" \
+            --data-services-version "$DATA_TAG" \
+            --cli "$PWD/scripts/release/dont-code" \
+            --output-dir "$PWD/dist/release" \
+            --tarball "$PWD/dist/release/dont-code-$VERSION.tar.gz"
+
+      - name: Upload bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dont-code-${{ env.VERSION }}
+          path: |
+            dist/release/dont-code-${{ env.VERSION }}.tar.gz
+            dist/release/dont-code-${{ env.VERSION }}.tar.gz.sha256
+          if-no-files-found: error
+
+      - name: Publish GitHub release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="v$VERSION"
+          TARBALL="dist/release/dont-code-$VERSION.tar.gz"
+          CHECKSUM="$TARBALL.sha256"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$TARBALL" "$CHECKSUM" --clobber
+          else
+            gh release create "$TAG" "$TARBALL" "$CHECKSUM" \
+              --title "dont-code $VERSION" \
+              --target "$GITHUB_SHA" \
+              --generate-notes
+          fi

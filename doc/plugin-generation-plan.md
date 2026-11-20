@@ -862,9 +862,17 @@ UI kit (D11), applied to host, libs, plugins and both templates:
 > Resolved: the NG0912 fix was merged into `ng-xtend/main` via `266b2ba` (PR #106). The workflow
 > builds from that ref by default and records the resolved source ref/SHA in `manifest.json`.
 >
-> Implemented (2026-11-20): `.github/workflows/release.yml` and `scripts/release/*`. A local dry run
-> assembled a 907-file bundle with `manifest.json`, `SHA256SUMS` and neutralized configs; the
-> clean-VM unpack and `doctor` acceptance remain in Phase 3.
+> Implemented (2026-11-20): `.github/workflows/release-from-sources.yml`,
+> `.github/workflows/release-from-binaries.yml` and `scripts/release/*`. The sources workflow
+> builds every dependency; the binaries workflow downloads Java jars from the newest stable GitHub
+> Releases, resolves ng-xtend libraries from npm dist-tags (`latest` / `next`) and compiles only the
+> dashboard plus the ng-xtend host/plugin app shells. A local dry run assembled a 907-file bundle
+> with `manifest.json`, `SHA256SUMS` and neutralized configs; the clean-VM unpack and `doctor`
+> acceptance remain in Phase 3.
+>
+> Known issue: the npm `next` dist-tag currently resolves to 1.4.1 libraries that still import
+> PrimeNG, so the `next` channel cannot build against `ng-xtend/main` app shells. Republish the
+> Optimus-based libraries under `next` before using that channel.
 
 - New `release` workflow in `dont-code`: build the dashboard static app (rename
   `index.csr.html` → `index.html`), build the two Quarkus uber-jars, take the pinned `ng-xtend`

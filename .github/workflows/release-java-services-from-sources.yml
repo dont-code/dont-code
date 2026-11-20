@@ -1,0 +1,225 @@
+name: Release Java services from sources
+
+# Builds the two deployment-agnostic Quarkus runner jars from their source
+# repositories and publishes them as GitHub Release assets. No hostnames,
+# credentials, Mongo URI or nginx configuration is rendered here.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version, e.g. 0.4.6 or 1.0.0'
+        required: true
+        default: '1.0.0'
+        type: string
+      core_ref:
+        description: 'dont-code/core ref'
+        required: true
+        default: 'main'
+        type: string
+      common_ref:
+        description: 'dont-code/common-quarkus-mongo ref'
+        required: true
+        default: 'main'
+        type: string
+      project_services_ref:
+        description: 'dont-code/project-services ref'
+        required: true
+        default: 'main'
+        type: string
+      data_services_ref:
+        description: 'dont-code/data-services ref'
+        required: true
+        default: 'main'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout dont-code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Resolve version
+        run: |
+          set -euo pipefail
+          VERSION="${{ inputs.version }}"
+          VERSION="${VERSION#v}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Invalid version: ${{ inputs.version }}" >&2
+            exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "TAG=v$VERSION" >> "$GITHUB_ENV"
+          echo "Releasing Java services as v$VERSION"
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Setup Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+          cache: maven
+          cache-dependency-path: |
+            source/core/java/pom.xml
+            source/common-quarkus-mongo/pom.xml
+            source/project-services/pom.xml
+            source/data-services/pom.xml
+
+      - name: Checkout core
+        uses: actions/checkout@v4
+        with:
+          repository: dont-code/core
+          ref: ${{ inputs.core_ref }}
+          path: source/core
+          fetch-depth: 1
+          token: ${{ secrets.DONTCODE_ACTIONS_TOKEN }}
+
+      - name: Checkout common-quarkus-mongo
+        uses: actions/checkout@v4
+        with:
+          repository: dont-code/common-quarkus-mongo
+          ref: ${{ inputs.common_ref }}
+          path: source/common-quarkus-mongo
+          fetch-depth: 1
+          token: ${{ secrets.DONTCODE_ACTIONS_TOKEN }}
+
+      - name: Checkout project-services
+        uses: actions/checkout@v4
+        with:
+          repository: dont-code/project-services
+          ref: ${{ inputs.project_services_ref }}
+          path: source/project-services
+          fetch-depth: 1
+          token: ${{ secrets.DONTCODE_ACTIONS_TOKEN }}
+
+      - name: Checkout data-services
+        uses: actions/checkout@v4
+        with:
+          repository: dont-code/data-services
+          ref: ${{ inputs.data_services_ref }}
+          path: source/data-services
+          fetch-depth: 1
+          token: ${{ secrets.DONTCODE_ACTIONS_TOKEN }}
+
+      - name: Record source commits
+        run: |
+          set -euo pipefail
+          echo "PROJECT_SHA=$(git -C source/project-services rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "DATA_SHA=$(git -C source/data-services rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Neutralize service configuration defaults
+        run: |
+          set -euo pipefail
+          node scripts/release/neutralize-service-properties.mjs \
+            source/project-services/src/main/resources/application.properties \
+            source/data-services/src/main/resources/application.properties
+
+      - name: Build core and common libraries
+        run: |
+          set -euo pipefail
+
+          mvn -B -ntp -f source/core/java/pom.xml versions:set \
+            -DnewVersion="$VERSION" -DgenerateBackupPoms=false
+          mvn -B -ntp -f source/core/java/pom.xml install \
+            -DskipTests -Dgpg.skip=true -Dmaven.javadoc.skip=true
+
+          mvn -B -ntp -f source/common-quarkus-mongo/pom.xml versions:set \
+            -DnewVersion="$VERSION" -DgenerateBackupPoms=false
+          mvn -B -ntp -f source/common-quarkus-mongo/pom.xml versions:set-property \
+            -Dproperty=dontcode-core.version -DnewVersion="$VERSION" -DgenerateBackupPoms=false
+          mvn -B -ntp -f source/common-quarkus-mongo/pom.xml install \
+            -DskipTests -Dgpg.skip=true -Dmaven.javadoc.skip=true
+
+      - name: Build service runner jars
+        run: |
+          set -euo pipefail
+
+          mvn -B -ntp -f source/project-services/pom.xml versions:set \
+            -DnewVersion="$VERSION" -DgenerateBackupPoms=false
+          mvn -B -ntp -f source/project-services/pom.xml versions:set-property \
+            -Dproperty=dontcode-common.version -DnewVersion="$VERSION" -DgenerateBackupPoms=false
+          mvn -B -ntp -f source/project-services/pom.xml package \
+            -DskipTests -Dgpg.skip=true
+
+          mkdir -p source/data-services/scratch
+          mvn -B -ntp -f source/data-services/pom.xml versions:set \
+            -DnewVersion="$VERSION" -DgenerateBackupPoms=false
+          mvn -B -ntp -f source/data-services/pom.xml versions:set-property \
+            -Dproperty=dontcode-common.version -DnewVersion="$VERSION" -DgenerateBackupPoms=false
+          mvn -B -ntp -f source/data-services/pom.xml package \
+            -DskipTests -Dgpg.skip=true
+
+      - name: Verify packaged configuration is neutralized
+        run: |
+          set -euo pipefail
+          for jar in \
+            source/project-services/target/project-services-runner.jar \
+            source/data-services/target/data-services-runner.jar
+          do
+            props="$(unzip -p "$jar" application.properties)"
+            if printf '%s\n' "$props" | grep -Eiq 'mongodb(\+srv)?://|dont-code\.net|testPassword|dontCodeTest'; then
+              echo "$jar still contains an environment-specific default" >&2
+              exit 1
+            fi
+          done
+          echo "Packaged service configuration is deployment-agnostic"
+
+      - name: Publish GitHub releases
+        env:
+          GH_TOKEN: ${{ secrets.DONTCODE_ACTIONS_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          publish() {
+            local repo="$1"
+            local jar="$2"
+            local target="$3"
+            local title="$4"
+            local dir name checksum prerelease=""
+
+            dir="$(dirname "$jar")"
+            name="$(basename "$jar")"
+            checksum="$jar.sha256"
+            (cd "$dir" && sha256sum "$name" > "$name.sha256")
+
+            if [[ "$VERSION" == *-* ]]; then
+              prerelease="--prerelease"
+            fi
+
+            if gh release view "$TAG" --repo "$repo" >/dev/null 2>&1; then
+              gh release upload "$TAG" "$jar" "$checksum" --repo "$repo" --clobber
+            else
+              gh release create "$TAG" "$jar" "$checksum" --repo "$repo" \
+                --target "$target" --title "$title" --generate-notes $prerelease
+            fi
+          }
+
+          publish dont-code/project-services \
+            source/project-services/target/project-services-runner.jar \
+            "$PROJECT_SHA" "project-services $VERSION"
+          publish dont-code/data-services \
+            source/data-services/target/data-services-runner.jar \
+            "$DATA_SHA" "data-services $VERSION"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-services-${{ env.VERSION }}
+          path: |
+            source/project-services/target/project-services-runner.jar
+            source/project-services/target/project-services-runner.jar.sha256
+            source/data-services/target/data-services-runner.jar
+            source/data-services/target/data-services-runner.jar.sha256
+          if-no-files-found: error
