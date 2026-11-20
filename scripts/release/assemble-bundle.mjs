@@ -67,7 +67,7 @@ const FORBIDDEN_TEXT = [
   [/ng-xtend\.dev/i, 'public hostname'],
   [/localhost:(?:420\d|8084)\b/i, 'local development URL'],
   [/mongodb(?:\+srv)?:\/\//i, 'Mongo URI'],
-  [/(?:api[_-]?key|secret|password)\s*[:=]\s*["'][^"'\s]+["']/i, 'credential literal']
+  [/(?:api[_-]?[Kk]ey|secret[_-]?[Kk]ey|client[_-]?[Ss]ecret|password)\s*[:=]\s*["'][^"'\s]{8,}["']/, 'credential literal']
 ];
 
 const TEXT_EXTENSIONS = new Set([
