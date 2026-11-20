@@ -804,6 +804,36 @@ UI kit (D11), applied to host, libs, plugins and both templates:
 - **Accept:** zero version warnings, all plugins render, `ng test` green in host and samples, and a
   screenshot diff of the main app screens shows no unintended UI change.
 
+##### M0.3 status (2026-11-16) — done, working tree only
+
+- Release builds: `rush build-deploy-next` and `rush build-deploy-latest` both complete **16/16,
+  EXIT=0**, with no “will not resolve” warnings.
+- Version parity: every host/plugin `remoteEntry.json` reports Angular core 22.2.6,
+  `@openng/optimus-ui` 2.0.2, `xt-components`/`xt-store`/`dc-workflow` 1.5.0 and `xt-type` 0.13.0;
+  no `strictVersion` warnings.
+- **NG0912 fixed by sharing the Optimus subpaths.** `ignoreUnusedDeps` pruned each build to the
+  Optimus subpaths it imported, so every remote published a different subset and the runtime
+  scoped each remote to its own copy (duplicate component definitions). Adding
+  `'@openng/optimus-ui'` to the existing `includeSecondaries: { keepAll: true }` patch in all nine
+  `federation.config.js` files makes every build publish the same **261** subpaths.
+  `@openng/optimus-ui/editor` is added to `skip` because it dynamically imports the optional,
+  uninstalled `quill` and no app uses the subpath. `denseExternals` and the `workspace:^`
+  requiredVersion behaviour are unchanged.
+- Runtime validation (headless Chromium, local webroot, mock store REST API): all **8** project
+  fixtures load and the List/Edit flow works (3–13 form inputs; datepicker, fileupload and rating
+  present where expected). **NG0912 count is 0 on every page**; Optimus resolves to the host copy
+  (**126** host Optimus chunks loaded, **0** remote-scoped Optimus chunks) with all 7
+  `remoteEntry.json` files loaded.
+- Legacy fixtures fixed: `Coffee Beans Evaluation.json` (`Text`, `Shop type` → `string`) and
+  `Dons.json` (`Reference` → `string`). Other legacy names there are already handled by
+  `ApplicationModelManagerService#translate()`.
+- `rush test`: **EXIT=0**, 15 projects SUCCESS + `xt-host` SUCCESS WITH WARNINGS (pre-existing
+  happy-dom teardown `AbortError`; its specs pass).
+- Remaining for M0.3: screenshot diff of the main app screens. Not reproduced in this run: the
+  earlier NG01354 (`ngModel` in a child of a parent `FormGroupDirective`) seen on Electric Cars —
+  keep as a watch item when editing existing rows.
+- The validation harness is throwaway (`/tmp/opencode/m03`) and is not committed.
+
 #### M0.4 — Baseline recorded + deploy discipline
 
 - Write the resolved versions into `manifest.json` (§4.5) and §4.10; `doctor` compares them.
