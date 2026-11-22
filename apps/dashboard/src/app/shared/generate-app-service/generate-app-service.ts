@@ -14,7 +14,7 @@ export class GenerateAppService {
   protected receivers: Array<{id:number, next:(msg:any) => void, error:(err:Error) => void}> = [];
 
   generateApiUrl = computed(() => {
-    return this.config.repository.value()?.generateApiUrl;
+    return this.config.resolveWebSocketUrl(this.config.repository.value()?.generateApiUrl);
   });
 
   manageSocket= computed (() => {

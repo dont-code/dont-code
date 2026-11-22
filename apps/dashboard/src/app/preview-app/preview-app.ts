@@ -34,7 +34,7 @@ export class PreviewApp {
   protected previewUrl = computed<SafeResourceUrl | null>(() => {
     const repo = this.repository().value();
     const app = this.latestGeneratedApp();
-    const applicationHostUrl = repo?.applicationHostUrl;
+    const applicationHostUrl = this.config.resolveUrl(repo?.applicationHostUrl);
 
     if (!applicationHostUrl || !app?.name) {
       return null;

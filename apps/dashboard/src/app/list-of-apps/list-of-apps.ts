@@ -32,9 +32,14 @@ export class ListOfApps implements OnInit {
 
   appInDb = httpResource<any[]>(() => {
       if (this.repository().hasValue()) {
-        return this.repository().value()?.projectApiUrl;
+        const projectApiUrl = this.config.resolveUrl(this.repository().value()!.projectApiUrl);
+        if (projectApiUrl == null) return undefined;
+        return {
+          url: projectApiUrl,
+          transferCache: false
+        };
       }
-      return undefined
+      return undefined;
     }
   );
 

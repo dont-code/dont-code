@@ -17,7 +17,7 @@ export class ProjectService {
   config = inject(ConfigService);
 
   async saveProjectDefinition(prjName: string, application:ApplicationModel|null): Promise<void> {
-    const prjApiUrl = this.config.repository.value()?.projectApiUrl;
+    const prjApiUrl = this.config.resolveUrl(this.config.repository.value()?.projectApiUrl);
     if (prjApiUrl == null) return Promise.reject('No project API url defined.');
     const generatedApp = application;
 
@@ -55,8 +55,10 @@ export class ProjectService {
     } else return null;
   }
 
-  projectUrl (prjName:string):string {
-    return this.config.repository.value()?.applicationHostUrl+'project='+encodeURIComponent(prjName);
+  projectUrl (prjName:string):string|null {
+    const applicationHostUrl = this.config.resolveUrl(this.config.repository.value()?.applicationHostUrl);
+    if (applicationHostUrl == null) return null;
+    return applicationHostUrl+'project='+encodeURIComponent(prjName);
   }
 
 }
