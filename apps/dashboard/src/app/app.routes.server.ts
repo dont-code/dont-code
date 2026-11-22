@@ -10,7 +10,7 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client
   },
   {
-    path: 'generate/:repoName',
+    path: 'generate',
     renderMode: RenderMode.Client
   },
   {

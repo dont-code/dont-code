@@ -9,7 +9,7 @@ export const routes: Routes = [
     path:'repo/:repoName',
     component:ListOfApps
   },{
-    path:'generate/:repoName',
+    path:'generate',
     component: GenerateApp
   }
 ];

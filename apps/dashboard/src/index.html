@@ -19,6 +19,11 @@
     if (location.pathname?.indexOf('repo/')!==-1) {
       repoName=location.pathname.substring(location.pathname.indexOf('repo/')+5);
       if (repoName.endsWith('/')) repoName=repoName.substring(0,repoName.length-1);
+    } else {
+      let params=new URLSearchParams(location.search);
+      const repo = params.get('repo')??params.get('repository');
+      if( repo!=null)
+        repoName=repo;
     }
     window.dashboardConfig =
       {

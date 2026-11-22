@@ -53,8 +53,6 @@ export class GenerateApp implements OnInit, OnDestroy {
   @ViewChild(PreviewApp)
   private previewApp?: PreviewApp;
 
-  repoName = input<string>();
-
   config = inject(ConfigService);
   dialog = inject(UserDialogService);
   generator = inject(GenerateAppService);
@@ -93,7 +91,6 @@ export class GenerateApp implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.config.updateRepoName(this.repoName());
     this.toDisconnect.push(this.generator.messageReceiver((response) => {
         this.isWaitingForAnswer = false;
         this.dialog.addAnswer(response);

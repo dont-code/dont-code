@@ -20,9 +20,7 @@ import {MatIcon} from '@angular/material/icon';
   styleUrl: './list-of-apps.css',
   changeDetection:ChangeDetectionStrategy.OnPush
 })
-export class ListOfApps implements OnInit {
-
-  repoName = input<string>();
+export class ListOfApps {
 
   config = inject(ConfigService);
 
@@ -65,12 +63,7 @@ export class ListOfApps implements OnInit {
     return [];
   })
 
-  ngOnInit(): void {
-    this.config.updateRepoName(this.repoName());
-  }
-
   protected linkToGeneratePage() {
-    const repoName = this.repoName()??'default';
-    return '/generate/'+repoName;
+    return '/generate/';
   }
 }

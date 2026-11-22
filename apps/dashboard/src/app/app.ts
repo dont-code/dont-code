@@ -1,5 +1,6 @@
 import {Component, inject} from '@angular/core';
 import {Router, RouterOutlet} from '@angular/router';
+import {ConfigService} from './shared/config-service/config-service';
 
 @Component({
   selector: 'app-root',
@@ -9,12 +10,14 @@ import {Router, RouterOutlet} from '@angular/router';
 })
 export class App {
   protected router=inject(Router);
+  protected config = inject(ConfigService);
   protected title = 'dashboard';
 
   constructor() {
     if (typeof window !== 'undefined') {
       const config = (window as any).dashboardConfig;
 
+      this.config.updateRepoName(config.repo);
       const action=config?.action;
       //console.log(action);
       if (action!=null) {

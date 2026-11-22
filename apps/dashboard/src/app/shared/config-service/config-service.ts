@@ -7,7 +7,7 @@ import {RepositoryConfig} from '../../model/repository-config';
 })
 export class ConfigService {
 
-  protected repoName=signal<string|null|undefined>(undefined)
+  repoName=signal<string|null|undefined>(undefined);
   protected document = inject(DOCUMENT);
 
   repository = httpResource<RepositoryConfig>(() => {
@@ -18,7 +18,7 @@ export class ConfigService {
 
   updateRepoName(repoName:string|undefined|null):void {
     const oldName = this.repoName();
-    if (oldName != repoName) {
+    if (((oldName!=null) || (repoName!=null)) && (oldName != repoName)) {
       this.repoName.set(repoName);
     }
   }
