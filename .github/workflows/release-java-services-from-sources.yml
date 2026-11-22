@@ -65,18 +65,6 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Setup Java 25
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '25'
-          cache: maven
-          cache-dependency-path: |
-            source/core/java/pom.xml
-            source/common-quarkus-mongo/pom.xml
-            source/project-services/pom.xml
-            source/data-services/pom.xml
-
       - name: Checkout core
         uses: actions/checkout@v4
         with:
@@ -118,6 +106,18 @@ jobs:
           set -euo pipefail
           echo "PROJECT_SHA=$(git -C source/project-services rev-parse HEAD)" >> "$GITHUB_ENV"
           echo "DATA_SHA=$(git -C source/data-services rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Setup Java 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+          cache: maven
+          cache-dependency-path: |
+            source/core/java/pom.xml
+            source/common-quarkus-mongo/pom.xml
+            source/project-services/pom.xml
+            source/data-services/pom.xml
 
       - name: Neutralize service configuration defaults
         run: |

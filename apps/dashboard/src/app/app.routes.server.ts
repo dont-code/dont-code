@@ -2,27 +2,19 @@ import { RenderMode, ServerRoute } from '@angular/ssr';
 
 export const serverRoutes: ServerRoute[] = [
   {
-    path:'',
+    path: '',
     renderMode: RenderMode.Client
-  }
-  ,{
-    path:'repo/:repoName',
-    renderMode: RenderMode.Prerender,
-    async getPrerenderParams () {
-      return [
-        { repoName:'collinfr'},
-        { repoName:'default'},
-        { repoName:'next-collinfr'},
-        { repoName:'next'}
-      ];
-    }
-  }
-  ,{
+  },
+  {
+    path: 'repo/:repoName',
+    renderMode: RenderMode.Client
+  },
+  {
     path: 'generate/:repoName',
     renderMode: RenderMode.Client
-  }
-  ,{
+  },
+  {
     path: '**',
-    renderMode: RenderMode.Server
+    renderMode: RenderMode.Client
   }
 ];
