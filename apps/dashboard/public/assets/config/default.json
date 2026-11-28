@@ -4,5 +4,5 @@
   "description": "Default repository of off-the-shelf installation of Dont-code.",
   "projectApiUrl": "api/project",
   "generateApiUrl": "api/generate",
-  "applicationHostUrl": "apps/host"
+  "applicationHostUrl": "apps/host/?repository=default&"
 }
