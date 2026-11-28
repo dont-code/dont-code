@@ -182,6 +182,7 @@ jobs:
             --project-pom "$PWD/source/project-services/pom.xml" \
             --data-pom "$PWD/source/data-services/pom.xml" \
             --cli "$PWD/scripts/release/dont-code" \
+            --host-url-shim "$PWD/scripts/release/host-relative-config-urls.js" \
             --output-dir "$PWD/dist/release" \
             --tarball "$PWD/dist/release/dont-code-$VERSION.tar.gz"
 

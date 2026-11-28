@@ -286,9 +286,9 @@ Root-relative static paths then work with a single build.
 | Path | Target | Notes |
 |---|---|---|
 | `/` | dashboard `index.html` | SPA fallback to `/index.html` |
-| `/assets/config/<repo>.json` | dashboard static | generated at install |
-| `/apps/host/` | xt-host | SPA fallback; `assets/config/<repo>.json` generated at install |
-| `/apps/host/assets/config/<repo>.json` | static | **generated at install**, drives plugins + APIs for the host |
+| `/assets/config/<repo>.json` | dashboard static | shipped with relative paths; no install-time rewrite |
+| `/apps/host/` | xt-host | SPA fallback; `assets/config/<repo>.json` shipped with relative paths |
+| `/apps/host/assets/config/<repo>.json` | static | **shipped relative**, drives plugins + APIs for the host |
 | `/apps/<name>-plugin/` | static | curated plugins |
 | `/apps/gen/<name>-plugin/` | static | generated plugins (add-on), outside the release symlink |
 | `/api/project/` | `127.0.0.1:8083/project/` | REST |
@@ -297,15 +297,18 @@ Root-relative static paths then work with a single build.
 | `/api/documents` | `127.0.0.1:8084/documents` | multipart uploads, body size limit |
 | `/dev/` (add-on) | dev UI or dashboard route | SSO + admin only |
 
-Sub-path installs (`https://domain/dont-code/`) are possible but require a second build with a
-different base href and prefixed URLs → open decision D6; dedicated domain recommended.
+Sub-path installs (`https://domain/dont-code/`) work with one build: the installer patches each
+app's `<base href>` and the release configs use paths relative to it. A dedicated (sub)domain is
+still recommended.
 
-### 4.3 Configuration model — one source of truth, generated at install
+### 4.3 Configuration model — deployment-neutral release configs
 
-Because both front-ends are **static** and read their config from their own origin, the install
-procedure must write the repository JSONs. Do not try to make them dynamic in v1.
+The default repository JSONs are **owned by the app projects**, not by the install channel. Both
+use paths relative to their app's `<base href>`, so the same tarball works at the domain root and
+under a YunoHost sub-path. The installer copies the `web/` tree as-is and does not rewrite them.
 
-Single source of truth: `/etc/dont-code/platform.json`
+`/etc/dont-code/platform.json` remains the source of truth for deployment-specific settings
+(Mongo mode, secrets references, tenant mode).
 
 ```jsonc
 {
@@ -327,20 +330,27 @@ Single source of truth: `/etc/dont-code/platform.json`
 Mongo credentials never live here: they go in `secrets.env`. `mongo.mode` is `external` for the
 YunoHost channel and `bundled` for the Docker channel.
 
-An installer step (`scripts/install`, or `bin/dont-code configure`) renders:
+Project sources:
 
-1. `<web>/dashboard/assets/config/default.json` — `{name, description, projectApiUrl,
-   generateApiUrl, applicationHostUrl}` (dashboard's `RepositoryConfig`).
-2. `<web>/apps/host/assets/config/default.json` — `{name, projectApiUrl, storeApiUrl,
-   documentApiUrl, plugins[]}` (host's `DcRepositoryModel`).
-3. nginx upstreams / env file for the two Quarkus jars.
+1. `apps/dashboard/public/assets/config/default.json` — `{name, description, projectApiUrl,
+   generateApiUrl, applicationHostUrl}` (dashboard's `RepositoryConfig`), with paths such as
+   `api/project` and `apps/host/?repository=default&`.
+2. `ng-xtend/apps/xt-host/projects/host/public/assets/config/default.json` — `{name,
+   projectApiUrl, storeApiUrl, documentApiUrl, plugins[]}` (host's `DcRepositoryModel`), with paths
+   such as `../../api/project` and `../web-plugin/remoteEntry.json`.
+
+`assemble-bundle.mjs` keeps only those `default.json` files in the bundle (other repository JSONs
+are deployment-specific demos) and validates that every config URL is relative. A small shim in
+`web/apps/host/index.html` resolves the relative values against the host's `<base href>` before the
+host reads them (the host otherwise requires an absolute `projectApiUrl` for `new URL()`). The
+installer only has to set the base hrefs and render nginx / env files for the two Quarkus jars.
 
 Rules:
 
-- **Absolute URLs** are mandatory for `projectApiUrl` and `generateApiUrl` (blockers B2/B3).
+- Config URLs must stay relative to the app base href; no domain, scheme or leading `/`.
 - `applicationHostUrl` is used by string concatenation (`applicationHostUrl + 'project=' + name`),
-  so it must already end with `?repository=default&` (as the current configs do).
-- `change_url` must re-run the renderer and reload nginx + restart nothing (the JSONs are static).
+  so it must already end with `?repository=default&`.
+- `change_url` only rewrites base hrefs and reloads nginx; the JSONs are unchanged.
 - A `dont-code doctor` command validates: JSON shape, URL reachability, WS handshake, Mongo
   connectivity, plugin `remoteEntry.json` version match, AI provider reachability.
 
@@ -387,8 +397,8 @@ Rules:
 
 - Immutable, checksummed and reproducible; **the same tarball feeds both channels**.
 - Contains **no environment-specific value**: no domain, no Mongo URI, no API key, no nginx config.
-- Static assets use root-relative base hrefs (`/`, `/apps/host/`, `/apps/<plugin>/`) so one build
-  works on every install (see D6 for sub-path installs).
+- Static assets ship with root-relative base hrefs (`/`, `/apps/host/`, `/apps/<plugin>/`) that the
+  installer patches per install path; config URLs are relative to those base hrefs.
 - `manifest.json` is what `dont-code doctor` uses to verify plugin/runtime version lockstep.
 - Angular / Optimus UI / native-federation versions are **exact** in the bundle (no `^`), resolving
   to the Track 0 baseline in §4.10; the dashboard and every plugin in the bundle are built from that
@@ -489,12 +499,12 @@ Target:
 
 | Operation | What it does |
 |---|---|
-| **install** | YunoHost: verify and bind to the existing Mongo; Docker: start the bundled Mongo. Then unpack release, render config, create system user + dirs, install units/containers + nginx, health check, print URL |
+| **install** | YunoHost: verify and bind to the existing Mongo; Docker: start the bundled Mongo. Then unpack release, patch base hrefs, create system user + dirs, install units/containers + nginx, health check, print URL |
 | **upgrade** | verify bundle checksum, unpack to new release dir, switch symlink, keep `generated/`, `documents/`, config, secrets; restart; health check; automatic rollback on failure |
 | **backup** | `mongodump` of the two dont-code DBs only (never the whole shared instance), `/var/lib/dont-code/documents`, `/var/www/dont-code/generated`, `/etc/dont-code` |
-| **restore** | inverse, then `mongorestore --drop` and config re-render |
+| **restore** | inverse, then `mongorestore --drop` and base href re-patch |
 | **remove** | stop/disable units, remove nginx block; ask before deleting DB/documents/generated plugins |
-| **change_url** | re-render `platform.json`, rewrite static configs, reload nginx |
+| **change_url** | re-render `platform.json`, rewrite base hrefs, reload nginx (the JSONs are unchanged) |
 
 Indexes: `projects.name` should be unique **per DB** to enforce B6 at the DB level.
 
@@ -1071,15 +1081,15 @@ UI kit (D11), applied to host, libs, plugins and both templates:
 5. **Shared external Mongo (YunoHost)** — not a managed resource. The package must never install or
    reconfigure it: credentials, network access, DB-name collisions, user-creation rights and backup
    scope all need validation at install (D4).
-6. **Static config drift** — two JSON files, two schemas, generated at install. `change_url` and
-   upgrades must re-render both; `doctor` must detect drift.
+6. **Static config drift** — two JSON files, two schemas. They are now owned by the app projects
+   and validated at bundle time; `doctor` must still detect drift in the field.
 7. **Build cost** — each generation job is a full Angular install+build (minutes). Pre-warmed image /
    cached `node_modules` is required; jobs must be async, cancellable, resumable.
 8. **OpenCode is RCE by design** — internal network only, per-job workspace, restricted agent,
    never proxied publicly.
 9. **Prompt injection** from the app description into generated code — human review gate + diff.
-10. **Sub-path installs** — root-relative assets assume a dedicated domain. Supporting
-    `https://domain/dont-code/` needs a second build per prefix (D6).
+10. **Sub-path installs** — solved by patching base hrefs at install; relative config URLs and
+    the host shim keep one tarball working at any prefix (D6).
 11. **Release/installer contract drift** — the bundle is the only interface between CI and the two
     channels. `manifest.json`, `SHA256SUMS` and `doctor` are the guardrails; a channel that starts
     inventing its own build or config breaks the model.
@@ -1104,7 +1114,7 @@ UI kit (D11), applied to host, libs, plugins and both templates:
 | D3 | Who may trigger/approve | any logged-in user vs admins only vs repository owner | admin for install/approve; users may propose |
 | D4 | Mongo in the YunoHost channel | require an external Mongo vs optional bundled Mongo | external only (the Docker channel bundles it) |
 | D5 | Tenancy | shared DB vs per-user `DbName` injection | shared default, per-user opt-in |
-| D6 | Install path | dedicated (sub)domain vs sub-path | dedicated domain |
+| D6 | Install path | dedicated (sub)domain vs sub-path | sub-path supported via base href patch + relative configs; dedicated domain still preferred |
 | D7 | Add-on runtime | Docker required vs native toolchain + system user | Docker (isolation, reproducible toolchain) |
 | D8 | Generation model | reuse `ng-xtend/opencode.json` Ollama/Collinfr models vs dedicated codegen model | dedicated model, provider-configurable |
 | D9 | Base + add-on packaging | two packages vs one package + flag | two packages |

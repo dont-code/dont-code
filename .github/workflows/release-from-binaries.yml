@@ -188,6 +188,7 @@ jobs:
             --project-services-version "$PROJECT_TAG" \
             --data-services-version "$DATA_TAG" \
             --cli "$PWD/scripts/release/dont-code" \
+            --host-url-shim "$PWD/scripts/release/host-relative-config-urls.js" \
             --output-dir "$PWD/dist/release" \
             --tarball "$PWD/dist/release/dont-code-$VERSION.tar.gz"
 

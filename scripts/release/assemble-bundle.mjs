@@ -75,6 +75,19 @@ const TEXT_EXTENSIONS = new Set([
   '.svg', '.xml', '.yaml', '.yml', '.md', '.properties'
 ]);
 
+// The default repository configs are owned by the app projects and already use
+// paths relative to each app's base href. The bundle ships those files directly
+// rather than generating configs at install time.
+const DEFAULT_CONFIG_SOURCES = {
+  dashboard: ['apps', 'dashboard', 'public', 'assets', 'config', 'default.json'],
+  host: ['apps', 'xt-host', 'projects', 'host', 'public', 'assets', 'config', 'default.json']
+};
+const HOST_URL_SHIM_MARKER = '<!-- dont-code:relative-config-urls -->';
+const CONFIG_URL_FIELDS = [
+  'projectApiUrl', 'storeApiUrl', 'documentApiUrl',
+  'generateApiUrl', 'applicationHostUrl', 'webSocketUrl'
+];
+
 function parseArgs(argv) {
   const args = {
     version: undefined,
@@ -90,6 +103,7 @@ function parseArgs(argv) {
     dataServicesVersion: undefined,
     ngXtendVersions: undefined,
     cli: undefined,
+    hostUrlShim: undefined,
     outputDir: undefined,
     tarball: undefined
   };
@@ -107,6 +121,7 @@ function parseArgs(argv) {
     ['--data-services-version', 'dataServicesVersion'],
     ['--ng-xtend-versions', 'ngXtendVersions'],
     ['--cli', 'cli'],
+    ['--host-url-shim', 'hostUrlShim'],
     ['--output-dir', 'outputDir'],
     ['--tarball', 'tarball']
   ]);
@@ -133,6 +148,7 @@ function parseArgs(argv) {
   args.projectPom = path.resolve(args.projectPom ?? path.join(repo, '..', 'project-services', 'pom.xml'));
   args.dataPom = path.resolve(args.dataPom ?? path.join(repo, '..', 'data-services', 'pom.xml'));
   args.cli = path.resolve(args.cli ?? path.join(repo, 'scripts', 'release', 'dont-code'));
+  args.hostUrlShim = path.resolve(args.hostUrlShim ?? path.join(repo, 'scripts', 'release', 'host-relative-config-urls.js'));
   args.outputDir = path.resolve(args.outputDir ?? path.join(repo, 'dist', 'release'));
   args.tarball = args.tarball ? path.resolve(args.tarball) : undefined;
   return args;
@@ -302,6 +318,55 @@ async function rewriteBaseHrefs(targets) {
   return rewritten;
 }
 
+function assertRelativeConfigUrl(value, label) {
+  if (!value) throw new Error(`${label} must not be empty`);
+  if (!/^[a-zA-Z][a-zA-Z\d+.-]*:/.test(value) && !value.startsWith('/')) return;
+  throw new Error(`${label} must be a path relative to the app base href: ${value}`);
+}
+
+function assertRelativeConfig(config, label) {
+  for (const field of CONFIG_URL_FIELDS) {
+    if (typeof config[field] === 'string') assertRelativeConfigUrl(config[field], `${label}:${field}`);
+  }
+  for (const plugin of config.plugins ?? []) {
+    const entry = plugin?.info?.['remote-entry'];
+    if (typeof entry === 'string') assertRelativeConfigUrl(entry, `${label}:${plugin.id}:remote-entry`);
+  }
+}
+
+async function installProjectDefaultConfig(source, appRoot, label) {
+  await requireFile(source, `${label} default config`);
+  assertRelativeConfig(await readJson(source), `${label} config`);
+
+  const configDir = path.join(appRoot, 'assets', 'config');
+  await fs.mkdir(configDir, { recursive: true });
+
+  // Other repository JSONs carry deployment-specific demo URLs; keep only the
+  // project-owned default repository in the release.
+  for (const entry of await fs.readdir(configDir)) {
+    if (entry !== 'default.json') {
+      await fs.rm(path.join(configDir, entry), { recursive: true, force: true });
+    }
+  }
+
+  const target = path.join(configDir, 'default.json');
+  await fs.copyFile(source, target);
+  return target;
+}
+
+async function injectHostUrlShim(indexFile, shimFile) {
+  const original = await fs.readFile(indexFile, 'utf8');
+  if (original.includes(HOST_URL_SHIM_MARKER)) return false;
+  if (!/<head(?:\s[^>]*)?>/i.test(original) || !/<\/head>/i.test(original)) {
+    throw new Error(`No <head> found in host index.html: ${indexFile}`);
+  }
+  const shim = (await fs.readFile(shimFile, 'utf8')).trim();
+  if (shim.includes('</script')) throw new Error(`Host URL shim must not contain a closing script tag: ${shimFile}`);
+  const snippet = `${HOST_URL_SHIM_MARKER}\n<script>\n${shim}\n</script>\n`;
+  await fs.writeFile(indexFile, original.replace(/<\/head>/i, `${snippet}</head>`));
+  return true;
+}
+
 async function neutralizeJar(jarPath) {
   const extract = spawnSync('unzip', ['-p', jarPath, 'application.properties'], { encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 });
   if (extract.error) throw extract.error;
@@ -384,6 +449,7 @@ async function main() {
   await requireFile(args.projectJar, 'project-services jar');
   await requireFile(args.dataJar, 'data-services jar');
   await requireFile(args.cli, 'bin/dont-code template');
+  await requireFile(args.hostUrlShim, 'host relative config URL shim');
 
   await fs.rm(bundleDir, { recursive: true, force: true });
   await fs.mkdir(bundleDir, { recursive: true });
@@ -420,23 +486,21 @@ async function main() {
   await fs.chmod(path.join(binDir, 'dont-code'), 0o755);
 
   await fs.writeFile(path.join(bundleDir, 'VERSION'), `${version}\n`, 'utf8');
-  await fs.rm(path.join(webRoot, 'dashboard', 'assets', 'config'), { recursive: true, force: true });
-  await fs.rm(path.join(webRoot, 'apps', 'host', 'assets', 'config'), { recursive: true, force: true });
-  await writeJson(path.join(webRoot, 'dashboard', 'assets', 'config', 'default.json'), {
-    name: 'Dont-code',
-    description: 'Repository configured at install time.',
-    projectApiUrl: '',
-    generateApiUrl: '',
-    applicationHostUrl: ''
-  });
-  await writeJson(path.join(webRoot, 'apps', 'host', 'assets', 'config', 'default.json'), {
-    name: 'Dont-code',
-    description: 'Repository configured at install time.',
-    projectApiUrl: '',
-    storeApiUrl: '',
-    documentApiUrl: '',
-    plugins: []
-  });
+
+  // Ship the project-owned default configs with relative paths; drop the
+  // deployment-specific demo repositories that are not part of a release.
+  const defaultConfigs = [
+    await installProjectDefaultConfig(
+      path.join(args.repo, ...DEFAULT_CONFIG_SOURCES.dashboard),
+      path.join(webRoot, 'dashboard'),
+      'dashboard'
+    ),
+    await installProjectDefaultConfig(
+      path.join(args.ngXtend, ...DEFAULT_CONFIG_SOURCES.host),
+      path.join(webRoot, 'apps', 'host'),
+      'host'
+    )
+  ].map((file) => path.relative(bundleDir, file).split(path.sep).join('/'));
 
   const scrubbedFiles = await scrubTextFiles(bundleDir);
   const baseHrefTargets = [
@@ -449,6 +513,7 @@ async function main() {
     }))
   ];
   const baseHrefs = await rewriteBaseHrefs(baseHrefTargets);
+  await injectHostUrlShim(path.join(webRoot, 'apps', 'host', 'index.html'), args.hostUrlShim);
 
   const dashboardPkg = await readJson(path.join(args.repo, 'apps', 'dashboard', 'package.json'));
   const hostPkg = await readJson(path.join(args.ngXtend, 'apps', 'xt-host', 'package.json'));
@@ -475,6 +540,13 @@ async function main() {
     version,
     bundle: bundleName,
     deploymentSpecificConfig: false,
+    config: {
+      source: 'project-default-configs',
+      urlStyle: 'relative-to-base-href',
+      renderedAtInstall: false,
+      files: defaultConfigs,
+      hostUrlShim: 'web/apps/host/index.html'
+    },
     source: {
       'dont-code': sourceInfo('dont-code', 'dont-code/dont-code', 'SOURCE_DONT_CODE_REF', 'SOURCE_DONT_CODE_SHA'),
       core: sourceInfo('core', 'dont-code/core', 'SOURCE_CORE_REF', 'SOURCE_CORE_SHA'),
@@ -517,6 +589,7 @@ async function main() {
   console.log(`Checksummed files: ${checksummedFiles}`);
   console.log(`Scrubbed text files: ${scrubbedFiles}`);
   console.log(`Base hrefs: ${baseHrefs.length}`);
+  console.log(`Default configs: ${defaultConfigs.join(', ')}`);
   if (args.tarball) console.log(`Tarball: ${args.tarball} (sha256 ${tarballChecksum})`);
 }
 
